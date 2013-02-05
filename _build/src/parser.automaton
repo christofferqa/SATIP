@@ -1,0 +1,1077 @@
+State 0:
+goal' -> . goal [ # ]
+-- On IDENTIFIER shift to state 1
+-- On list(function_declaration) shift to state 2
+-- On identifier shift to state 4
+-- On goal shift to state 105
+-- On function_declaration shift to state 106
+-- On EOF reduce production list(function_declaration) -> 
+
+State 1:
+identifier -> IDENTIFIER . [ STAR SEMICOLON R_PAREN PLUS MINUS L_PAREN GT EQ DIV COMMA ASSIGN ]
+-- On STAR reduce production identifier -> IDENTIFIER 
+-- On SEMICOLON reduce production identifier -> IDENTIFIER 
+-- On R_PAREN reduce production identifier -> IDENTIFIER 
+-- On PLUS reduce production identifier -> IDENTIFIER 
+-- On MINUS reduce production identifier -> IDENTIFIER 
+-- On L_PAREN reduce production identifier -> IDENTIFIER 
+-- On GT reduce production identifier -> IDENTIFIER 
+-- On EQ reduce production identifier -> IDENTIFIER 
+-- On DIV reduce production identifier -> IDENTIFIER 
+-- On COMMA reduce production identifier -> IDENTIFIER 
+-- On ASSIGN reduce production identifier -> IDENTIFIER 
+
+State 2:
+goal -> list(function_declaration) . EOF [ # ]
+-- On EOF shift to state 3
+
+State 3:
+goal -> list(function_declaration) EOF . [ # ]
+-- On # reduce production goal -> list(function_declaration) EOF 
+
+State 4:
+function_declaration -> identifier . function_params function_body [ IDENTIFIER EOF ]
+-- On L_PAREN shift to state 5
+-- On function_params shift to state 13
+
+State 5:
+function_params -> L_PAREN . formal_parameter_list R_PAREN [ L_BRACE ]
+-- On IDENTIFIER shift to state 1
+-- On identifier shift to state 6
+-- On formal_parameter_list_nonempty shift to state 7
+-- On formal_parameter_list shift to state 10
+-- On formal_parameter shift to state 12
+-- On R_PAREN reduce production formal_parameter_list -> 
+
+State 6:
+formal_parameter -> identifier . [ R_PAREN COMMA ]
+-- On R_PAREN reduce production formal_parameter -> identifier 
+-- On COMMA reduce production formal_parameter -> identifier 
+
+State 7:
+formal_parameter_list -> formal_parameter_list_nonempty . [ R_PAREN ]
+formal_parameter_list_nonempty -> formal_parameter_list_nonempty . COMMA formal_parameter [ R_PAREN COMMA ]
+-- On COMMA shift to state 8
+-- On R_PAREN reduce production formal_parameter_list -> formal_parameter_list_nonempty 
+
+State 8:
+formal_parameter_list_nonempty -> formal_parameter_list_nonempty COMMA . formal_parameter [ R_PAREN COMMA ]
+-- On IDENTIFIER shift to state 1
+-- On identifier shift to state 6
+-- On formal_parameter shift to state 9
+
+State 9:
+formal_parameter_list_nonempty -> formal_parameter_list_nonempty COMMA formal_parameter . [ R_PAREN COMMA ]
+-- On R_PAREN reduce production formal_parameter_list_nonempty -> formal_parameter_list_nonempty COMMA formal_parameter 
+-- On COMMA reduce production formal_parameter_list_nonempty -> formal_parameter_list_nonempty COMMA formal_parameter 
+
+State 10:
+function_params -> L_PAREN formal_parameter_list . R_PAREN [ L_BRACE ]
+-- On R_PAREN shift to state 11
+
+State 11:
+function_params -> L_PAREN formal_parameter_list R_PAREN . [ L_BRACE ]
+-- On L_BRACE reduce production function_params -> L_PAREN formal_parameter_list R_PAREN 
+
+State 12:
+formal_parameter_list_nonempty -> formal_parameter . [ R_PAREN COMMA ]
+-- On R_PAREN reduce production formal_parameter_list_nonempty -> formal_parameter 
+-- On COMMA reduce production formal_parameter_list_nonempty -> formal_parameter 
+
+State 13:
+function_declaration -> identifier function_params . function_body [ IDENTIFIER EOF ]
+-- On L_BRACE shift to state 14
+-- On function_body shift to state 104
+
+State 14:
+function_body -> L_BRACE . statement_list return_statement R_BRACE [ IDENTIFIER EOF ]
+-- On WHILE shift to state 15
+-- On VAR shift to state 60
+-- On STAR shift to state 66
+-- On OUTPUT shift to state 70
+-- On IF shift to state 72
+-- On IDENTIFIER shift to state 1
+-- On while_statement shift to state 79
+-- On statement_without_trailing_substatement shift to state 80
+-- On statement_list_nonempty shift to state 81
+-- On statement_list shift to state 98
+-- On statement shift to state 96
+-- On output_statement shift to state 83
+-- On local_variable_declarations_statement shift to state 85
+-- On if_then_statement shift to state 87
+-- On if_then_else_statement shift to state 88
+-- On identifier shift to state 89
+-- On assignment shift to state 92
+-- On RETURN reduce production statement_list -> 
+
+State 15:
+while_statement -> WHILE . L_PAREN expression R_PAREN block_statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On L_PAREN shift to state 16
+
+State 16:
+while_statement -> WHILE L_PAREN . expression R_PAREN block_statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On relational_expression shift to state 25
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 28
+-- On multiplicative_expression shift to state 29
+-- On identifier shift to state 32
+-- On expression shift to state 57
+-- On equality_expression shift to state 35
+-- On additive_expression shift to state 38
+
+State 17:
+pointer_expression -> STAR . pointer_expression [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 56
+-- On identifier shift to state 32
+
+State 18:
+primary_expression -> NULL . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR reduce production primary_expression -> NULL 
+-- On SEMICOLON reduce production primary_expression -> NULL 
+-- On R_PAREN reduce production primary_expression -> NULL 
+-- On PLUS reduce production primary_expression -> NULL 
+-- On MINUS reduce production primary_expression -> NULL 
+-- On GT reduce production primary_expression -> NULL 
+-- On EQ reduce production primary_expression -> NULL 
+-- On DIV reduce production primary_expression -> NULL 
+-- On COMMA reduce production primary_expression -> NULL 
+-- On ASSIGN reduce production primary_expression -> NULL 
+
+State 19:
+primary_expression -> MALLOC . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR reduce production primary_expression -> MALLOC 
+-- On SEMICOLON reduce production primary_expression -> MALLOC 
+-- On R_PAREN reduce production primary_expression -> MALLOC 
+-- On PLUS reduce production primary_expression -> MALLOC 
+-- On MINUS reduce production primary_expression -> MALLOC 
+-- On GT reduce production primary_expression -> MALLOC 
+-- On EQ reduce production primary_expression -> MALLOC 
+-- On DIV reduce production primary_expression -> MALLOC 
+-- On COMMA reduce production primary_expression -> MALLOC 
+-- On ASSIGN reduce production primary_expression -> MALLOC 
+
+State 20:
+primary_expression -> L_PAREN . expression R_PAREN [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+primary_expression -> L_PAREN . expression R_PAREN function_arguments [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On relational_expression shift to state 25
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 28
+-- On multiplicative_expression shift to state 29
+-- On identifier shift to state 32
+-- On expression shift to state 53
+-- On equality_expression shift to state 35
+-- On additive_expression shift to state 38
+
+State 21:
+primary_expression -> INTEGER_LITERAL . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR reduce production primary_expression -> INTEGER_LITERAL 
+-- On SEMICOLON reduce production primary_expression -> INTEGER_LITERAL 
+-- On R_PAREN reduce production primary_expression -> INTEGER_LITERAL 
+-- On PLUS reduce production primary_expression -> INTEGER_LITERAL 
+-- On MINUS reduce production primary_expression -> INTEGER_LITERAL 
+-- On GT reduce production primary_expression -> INTEGER_LITERAL 
+-- On EQ reduce production primary_expression -> INTEGER_LITERAL 
+-- On DIV reduce production primary_expression -> INTEGER_LITERAL 
+-- On COMMA reduce production primary_expression -> INTEGER_LITERAL 
+-- On ASSIGN reduce production primary_expression -> INTEGER_LITERAL 
+
+State 22:
+primary_expression -> INPUT . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR reduce production primary_expression -> INPUT 
+-- On SEMICOLON reduce production primary_expression -> INPUT 
+-- On R_PAREN reduce production primary_expression -> INPUT 
+-- On PLUS reduce production primary_expression -> INPUT 
+-- On MINUS reduce production primary_expression -> INPUT 
+-- On GT reduce production primary_expression -> INPUT 
+-- On EQ reduce production primary_expression -> INPUT 
+-- On DIV reduce production primary_expression -> INPUT 
+-- On COMMA reduce production primary_expression -> INPUT 
+-- On ASSIGN reduce production primary_expression -> INPUT 
+
+State 23:
+pointer_expression -> AMP . identifier [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On IDENTIFIER shift to state 1
+-- On identifier shift to state 24
+
+State 24:
+pointer_expression -> AMP identifier . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR reduce production pointer_expression -> AMP identifier 
+-- On SEMICOLON reduce production pointer_expression -> AMP identifier 
+-- On R_PAREN reduce production pointer_expression -> AMP identifier 
+-- On PLUS reduce production pointer_expression -> AMP identifier 
+-- On MINUS reduce production pointer_expression -> AMP identifier 
+-- On GT reduce production pointer_expression -> AMP identifier 
+-- On EQ reduce production pointer_expression -> AMP identifier 
+-- On DIV reduce production pointer_expression -> AMP identifier 
+-- On COMMA reduce production pointer_expression -> AMP identifier 
+-- On ASSIGN reduce production pointer_expression -> AMP identifier 
+
+State 25:
+equality_expression -> relational_expression . [ SEMICOLON R_PAREN EQ COMMA ASSIGN ]
+relational_expression -> relational_expression . GT additive_expression [ SEMICOLON R_PAREN GT EQ COMMA ASSIGN ]
+-- On GT shift to state 26
+-- On SEMICOLON reduce production equality_expression -> relational_expression 
+-- On R_PAREN reduce production equality_expression -> relational_expression 
+-- On EQ reduce production equality_expression -> relational_expression 
+-- On COMMA reduce production equality_expression -> relational_expression 
+-- On ASSIGN reduce production equality_expression -> relational_expression 
+
+State 26:
+relational_expression -> relational_expression GT . additive_expression [ SEMICOLON R_PAREN GT EQ COMMA ASSIGN ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 28
+-- On multiplicative_expression shift to state 29
+-- On identifier shift to state 32
+-- On additive_expression shift to state 52
+
+State 27:
+pointer_expression -> primary_expression . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR reduce production pointer_expression -> primary_expression 
+-- On SEMICOLON reduce production pointer_expression -> primary_expression 
+-- On R_PAREN reduce production pointer_expression -> primary_expression 
+-- On PLUS reduce production pointer_expression -> primary_expression 
+-- On MINUS reduce production pointer_expression -> primary_expression 
+-- On GT reduce production pointer_expression -> primary_expression 
+-- On EQ reduce production pointer_expression -> primary_expression 
+-- On DIV reduce production pointer_expression -> primary_expression 
+-- On COMMA reduce production pointer_expression -> primary_expression 
+-- On ASSIGN reduce production pointer_expression -> primary_expression 
+
+State 28:
+multiplicative_expression -> pointer_expression . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR reduce production multiplicative_expression -> pointer_expression 
+-- On SEMICOLON reduce production multiplicative_expression -> pointer_expression 
+-- On R_PAREN reduce production multiplicative_expression -> pointer_expression 
+-- On PLUS reduce production multiplicative_expression -> pointer_expression 
+-- On MINUS reduce production multiplicative_expression -> pointer_expression 
+-- On GT reduce production multiplicative_expression -> pointer_expression 
+-- On EQ reduce production multiplicative_expression -> pointer_expression 
+-- On DIV reduce production multiplicative_expression -> pointer_expression 
+-- On COMMA reduce production multiplicative_expression -> pointer_expression 
+-- On ASSIGN reduce production multiplicative_expression -> pointer_expression 
+
+State 29:
+additive_expression -> multiplicative_expression . [ SEMICOLON R_PAREN PLUS MINUS GT EQ COMMA ASSIGN ]
+multiplicative_expression -> multiplicative_expression . STAR pointer_expression [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+multiplicative_expression -> multiplicative_expression . DIV pointer_expression [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR shift to state 30
+-- On DIV shift to state 41
+-- On SEMICOLON reduce production additive_expression -> multiplicative_expression 
+-- On R_PAREN reduce production additive_expression -> multiplicative_expression 
+-- On PLUS reduce production additive_expression -> multiplicative_expression 
+-- On MINUS reduce production additive_expression -> multiplicative_expression 
+-- On GT reduce production additive_expression -> multiplicative_expression 
+-- On EQ reduce production additive_expression -> multiplicative_expression 
+-- On COMMA reduce production additive_expression -> multiplicative_expression 
+-- On ASSIGN reduce production additive_expression -> multiplicative_expression 
+
+State 30:
+multiplicative_expression -> multiplicative_expression STAR . pointer_expression [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 31
+-- On identifier shift to state 32
+
+State 31:
+multiplicative_expression -> multiplicative_expression STAR pointer_expression . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR reduce production multiplicative_expression -> multiplicative_expression STAR pointer_expression 
+-- On SEMICOLON reduce production multiplicative_expression -> multiplicative_expression STAR pointer_expression 
+-- On R_PAREN reduce production multiplicative_expression -> multiplicative_expression STAR pointer_expression 
+-- On PLUS reduce production multiplicative_expression -> multiplicative_expression STAR pointer_expression 
+-- On MINUS reduce production multiplicative_expression -> multiplicative_expression STAR pointer_expression 
+-- On GT reduce production multiplicative_expression -> multiplicative_expression STAR pointer_expression 
+-- On EQ reduce production multiplicative_expression -> multiplicative_expression STAR pointer_expression 
+-- On DIV reduce production multiplicative_expression -> multiplicative_expression STAR pointer_expression 
+-- On COMMA reduce production multiplicative_expression -> multiplicative_expression STAR pointer_expression 
+-- On ASSIGN reduce production multiplicative_expression -> multiplicative_expression STAR pointer_expression 
+
+State 32:
+primary_expression -> identifier . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+primary_expression -> identifier . function_arguments [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On L_PAREN shift to state 33
+-- On function_arguments shift to state 51
+-- On STAR reduce production primary_expression -> identifier 
+-- On SEMICOLON reduce production primary_expression -> identifier 
+-- On R_PAREN reduce production primary_expression -> identifier 
+-- On PLUS reduce production primary_expression -> identifier 
+-- On MINUS reduce production primary_expression -> identifier 
+-- On GT reduce production primary_expression -> identifier 
+-- On EQ reduce production primary_expression -> identifier 
+-- On DIV reduce production primary_expression -> identifier 
+-- On COMMA reduce production primary_expression -> identifier 
+-- On ASSIGN reduce production primary_expression -> identifier 
+
+State 33:
+function_arguments -> L_PAREN . argument_list R_PAREN [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On relational_expression shift to state 25
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 28
+-- On multiplicative_expression shift to state 29
+-- On identifier shift to state 32
+-- On expression shift to state 34
+-- On equality_expression shift to state 35
+-- On argument_list_nonempty shift to state 45
+-- On argument_list shift to state 48
+-- On argument shift to state 50
+-- On additive_expression shift to state 38
+-- On R_PAREN reduce production argument_list -> 
+
+State 34:
+argument -> expression . [ R_PAREN COMMA ]
+-- On R_PAREN reduce production argument -> expression 
+-- On COMMA reduce production argument -> expression 
+
+State 35:
+equality_expression -> equality_expression . EQ relational_expression [ SEMICOLON R_PAREN EQ COMMA ASSIGN ]
+expression -> equality_expression . [ SEMICOLON R_PAREN COMMA ASSIGN ]
+-- On EQ shift to state 36
+-- On SEMICOLON reduce production expression -> equality_expression 
+-- On R_PAREN reduce production expression -> equality_expression 
+-- On COMMA reduce production expression -> equality_expression 
+-- On ASSIGN reduce production expression -> equality_expression 
+
+State 36:
+equality_expression -> equality_expression EQ . relational_expression [ SEMICOLON R_PAREN EQ COMMA ASSIGN ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On relational_expression shift to state 37
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 28
+-- On multiplicative_expression shift to state 29
+-- On identifier shift to state 32
+-- On additive_expression shift to state 38
+
+State 37:
+equality_expression -> equality_expression EQ relational_expression . [ SEMICOLON R_PAREN EQ COMMA ASSIGN ]
+relational_expression -> relational_expression . GT additive_expression [ SEMICOLON R_PAREN GT EQ COMMA ASSIGN ]
+-- On GT shift to state 26
+-- On SEMICOLON reduce production equality_expression -> equality_expression EQ relational_expression 
+-- On R_PAREN reduce production equality_expression -> equality_expression EQ relational_expression 
+-- On EQ reduce production equality_expression -> equality_expression EQ relational_expression 
+-- On COMMA reduce production equality_expression -> equality_expression EQ relational_expression 
+-- On ASSIGN reduce production equality_expression -> equality_expression EQ relational_expression 
+
+State 38:
+additive_expression -> additive_expression . PLUS multiplicative_expression [ SEMICOLON R_PAREN PLUS MINUS GT EQ COMMA ASSIGN ]
+additive_expression -> additive_expression . MINUS multiplicative_expression [ SEMICOLON R_PAREN PLUS MINUS GT EQ COMMA ASSIGN ]
+relational_expression -> additive_expression . [ SEMICOLON R_PAREN GT EQ COMMA ASSIGN ]
+-- On PLUS shift to state 39
+-- On MINUS shift to state 43
+-- On SEMICOLON reduce production relational_expression -> additive_expression 
+-- On R_PAREN reduce production relational_expression -> additive_expression 
+-- On GT reduce production relational_expression -> additive_expression 
+-- On EQ reduce production relational_expression -> additive_expression 
+-- On COMMA reduce production relational_expression -> additive_expression 
+-- On ASSIGN reduce production relational_expression -> additive_expression 
+
+State 39:
+additive_expression -> additive_expression PLUS . multiplicative_expression [ SEMICOLON R_PAREN PLUS MINUS GT EQ COMMA ASSIGN ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 28
+-- On multiplicative_expression shift to state 40
+-- On identifier shift to state 32
+
+State 40:
+additive_expression -> additive_expression PLUS multiplicative_expression . [ SEMICOLON R_PAREN PLUS MINUS GT EQ COMMA ASSIGN ]
+multiplicative_expression -> multiplicative_expression . STAR pointer_expression [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+multiplicative_expression -> multiplicative_expression . DIV pointer_expression [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR shift to state 30
+-- On DIV shift to state 41
+-- On SEMICOLON reduce production additive_expression -> additive_expression PLUS multiplicative_expression 
+-- On R_PAREN reduce production additive_expression -> additive_expression PLUS multiplicative_expression 
+-- On PLUS reduce production additive_expression -> additive_expression PLUS multiplicative_expression 
+-- On MINUS reduce production additive_expression -> additive_expression PLUS multiplicative_expression 
+-- On GT reduce production additive_expression -> additive_expression PLUS multiplicative_expression 
+-- On EQ reduce production additive_expression -> additive_expression PLUS multiplicative_expression 
+-- On COMMA reduce production additive_expression -> additive_expression PLUS multiplicative_expression 
+-- On ASSIGN reduce production additive_expression -> additive_expression PLUS multiplicative_expression 
+
+State 41:
+multiplicative_expression -> multiplicative_expression DIV . pointer_expression [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 42
+-- On identifier shift to state 32
+
+State 42:
+multiplicative_expression -> multiplicative_expression DIV pointer_expression . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR reduce production multiplicative_expression -> multiplicative_expression DIV pointer_expression 
+-- On SEMICOLON reduce production multiplicative_expression -> multiplicative_expression DIV pointer_expression 
+-- On R_PAREN reduce production multiplicative_expression -> multiplicative_expression DIV pointer_expression 
+-- On PLUS reduce production multiplicative_expression -> multiplicative_expression DIV pointer_expression 
+-- On MINUS reduce production multiplicative_expression -> multiplicative_expression DIV pointer_expression 
+-- On GT reduce production multiplicative_expression -> multiplicative_expression DIV pointer_expression 
+-- On EQ reduce production multiplicative_expression -> multiplicative_expression DIV pointer_expression 
+-- On DIV reduce production multiplicative_expression -> multiplicative_expression DIV pointer_expression 
+-- On COMMA reduce production multiplicative_expression -> multiplicative_expression DIV pointer_expression 
+-- On ASSIGN reduce production multiplicative_expression -> multiplicative_expression DIV pointer_expression 
+
+State 43:
+additive_expression -> additive_expression MINUS . multiplicative_expression [ SEMICOLON R_PAREN PLUS MINUS GT EQ COMMA ASSIGN ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 28
+-- On multiplicative_expression shift to state 44
+-- On identifier shift to state 32
+
+State 44:
+additive_expression -> additive_expression MINUS multiplicative_expression . [ SEMICOLON R_PAREN PLUS MINUS GT EQ COMMA ASSIGN ]
+multiplicative_expression -> multiplicative_expression . STAR pointer_expression [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+multiplicative_expression -> multiplicative_expression . DIV pointer_expression [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR shift to state 30
+-- On DIV shift to state 41
+-- On SEMICOLON reduce production additive_expression -> additive_expression MINUS multiplicative_expression 
+-- On R_PAREN reduce production additive_expression -> additive_expression MINUS multiplicative_expression 
+-- On PLUS reduce production additive_expression -> additive_expression MINUS multiplicative_expression 
+-- On MINUS reduce production additive_expression -> additive_expression MINUS multiplicative_expression 
+-- On GT reduce production additive_expression -> additive_expression MINUS multiplicative_expression 
+-- On EQ reduce production additive_expression -> additive_expression MINUS multiplicative_expression 
+-- On COMMA reduce production additive_expression -> additive_expression MINUS multiplicative_expression 
+-- On ASSIGN reduce production additive_expression -> additive_expression MINUS multiplicative_expression 
+
+State 45:
+argument_list -> argument_list_nonempty . [ R_PAREN ]
+argument_list_nonempty -> argument_list_nonempty . COMMA argument [ R_PAREN COMMA ]
+-- On COMMA shift to state 46
+-- On R_PAREN reduce production argument_list -> argument_list_nonempty 
+
+State 46:
+argument_list_nonempty -> argument_list_nonempty COMMA . argument [ R_PAREN COMMA ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On relational_expression shift to state 25
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 28
+-- On multiplicative_expression shift to state 29
+-- On identifier shift to state 32
+-- On expression shift to state 34
+-- On equality_expression shift to state 35
+-- On argument shift to state 47
+-- On additive_expression shift to state 38
+
+State 47:
+argument_list_nonempty -> argument_list_nonempty COMMA argument . [ R_PAREN COMMA ]
+-- On R_PAREN reduce production argument_list_nonempty -> argument_list_nonempty COMMA argument 
+-- On COMMA reduce production argument_list_nonempty -> argument_list_nonempty COMMA argument 
+
+State 48:
+function_arguments -> L_PAREN argument_list . R_PAREN [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On R_PAREN shift to state 49
+
+State 49:
+function_arguments -> L_PAREN argument_list R_PAREN . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR reduce production function_arguments -> L_PAREN argument_list R_PAREN 
+-- On SEMICOLON reduce production function_arguments -> L_PAREN argument_list R_PAREN 
+-- On R_PAREN reduce production function_arguments -> L_PAREN argument_list R_PAREN 
+-- On PLUS reduce production function_arguments -> L_PAREN argument_list R_PAREN 
+-- On MINUS reduce production function_arguments -> L_PAREN argument_list R_PAREN 
+-- On GT reduce production function_arguments -> L_PAREN argument_list R_PAREN 
+-- On EQ reduce production function_arguments -> L_PAREN argument_list R_PAREN 
+-- On DIV reduce production function_arguments -> L_PAREN argument_list R_PAREN 
+-- On COMMA reduce production function_arguments -> L_PAREN argument_list R_PAREN 
+-- On ASSIGN reduce production function_arguments -> L_PAREN argument_list R_PAREN 
+
+State 50:
+argument_list_nonempty -> argument . [ R_PAREN COMMA ]
+-- On R_PAREN reduce production argument_list_nonempty -> argument 
+-- On COMMA reduce production argument_list_nonempty -> argument 
+
+State 51:
+primary_expression -> identifier function_arguments . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR reduce production primary_expression -> identifier function_arguments 
+-- On SEMICOLON reduce production primary_expression -> identifier function_arguments 
+-- On R_PAREN reduce production primary_expression -> identifier function_arguments 
+-- On PLUS reduce production primary_expression -> identifier function_arguments 
+-- On MINUS reduce production primary_expression -> identifier function_arguments 
+-- On GT reduce production primary_expression -> identifier function_arguments 
+-- On EQ reduce production primary_expression -> identifier function_arguments 
+-- On DIV reduce production primary_expression -> identifier function_arguments 
+-- On COMMA reduce production primary_expression -> identifier function_arguments 
+-- On ASSIGN reduce production primary_expression -> identifier function_arguments 
+
+State 52:
+additive_expression -> additive_expression . PLUS multiplicative_expression [ SEMICOLON R_PAREN PLUS MINUS GT EQ COMMA ASSIGN ]
+additive_expression -> additive_expression . MINUS multiplicative_expression [ SEMICOLON R_PAREN PLUS MINUS GT EQ COMMA ASSIGN ]
+relational_expression -> relational_expression GT additive_expression . [ SEMICOLON R_PAREN GT EQ COMMA ASSIGN ]
+-- On PLUS shift to state 39
+-- On MINUS shift to state 43
+-- On SEMICOLON reduce production relational_expression -> relational_expression GT additive_expression 
+-- On R_PAREN reduce production relational_expression -> relational_expression GT additive_expression 
+-- On GT reduce production relational_expression -> relational_expression GT additive_expression 
+-- On EQ reduce production relational_expression -> relational_expression GT additive_expression 
+-- On COMMA reduce production relational_expression -> relational_expression GT additive_expression 
+-- On ASSIGN reduce production relational_expression -> relational_expression GT additive_expression 
+
+State 53:
+primary_expression -> L_PAREN expression . R_PAREN [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+primary_expression -> L_PAREN expression . R_PAREN function_arguments [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On R_PAREN shift to state 54
+
+State 54:
+primary_expression -> L_PAREN expression R_PAREN . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+primary_expression -> L_PAREN expression R_PAREN . function_arguments [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On L_PAREN shift to state 33
+-- On function_arguments shift to state 55
+-- On STAR reduce production primary_expression -> L_PAREN expression R_PAREN 
+-- On SEMICOLON reduce production primary_expression -> L_PAREN expression R_PAREN 
+-- On R_PAREN reduce production primary_expression -> L_PAREN expression R_PAREN 
+-- On PLUS reduce production primary_expression -> L_PAREN expression R_PAREN 
+-- On MINUS reduce production primary_expression -> L_PAREN expression R_PAREN 
+-- On GT reduce production primary_expression -> L_PAREN expression R_PAREN 
+-- On EQ reduce production primary_expression -> L_PAREN expression R_PAREN 
+-- On DIV reduce production primary_expression -> L_PAREN expression R_PAREN 
+-- On COMMA reduce production primary_expression -> L_PAREN expression R_PAREN 
+-- On ASSIGN reduce production primary_expression -> L_PAREN expression R_PAREN 
+
+State 55:
+primary_expression -> L_PAREN expression R_PAREN function_arguments . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR reduce production primary_expression -> L_PAREN expression R_PAREN function_arguments 
+-- On SEMICOLON reduce production primary_expression -> L_PAREN expression R_PAREN function_arguments 
+-- On R_PAREN reduce production primary_expression -> L_PAREN expression R_PAREN function_arguments 
+-- On PLUS reduce production primary_expression -> L_PAREN expression R_PAREN function_arguments 
+-- On MINUS reduce production primary_expression -> L_PAREN expression R_PAREN function_arguments 
+-- On GT reduce production primary_expression -> L_PAREN expression R_PAREN function_arguments 
+-- On EQ reduce production primary_expression -> L_PAREN expression R_PAREN function_arguments 
+-- On DIV reduce production primary_expression -> L_PAREN expression R_PAREN function_arguments 
+-- On COMMA reduce production primary_expression -> L_PAREN expression R_PAREN function_arguments 
+-- On ASSIGN reduce production primary_expression -> L_PAREN expression R_PAREN function_arguments 
+
+State 56:
+pointer_expression -> STAR pointer_expression . [ STAR SEMICOLON R_PAREN PLUS MINUS GT EQ DIV COMMA ASSIGN ]
+-- On STAR reduce production pointer_expression -> STAR pointer_expression 
+-- On SEMICOLON reduce production pointer_expression -> STAR pointer_expression 
+-- On R_PAREN reduce production pointer_expression -> STAR pointer_expression 
+-- On PLUS reduce production pointer_expression -> STAR pointer_expression 
+-- On MINUS reduce production pointer_expression -> STAR pointer_expression 
+-- On GT reduce production pointer_expression -> STAR pointer_expression 
+-- On EQ reduce production pointer_expression -> STAR pointer_expression 
+-- On DIV reduce production pointer_expression -> STAR pointer_expression 
+-- On COMMA reduce production pointer_expression -> STAR pointer_expression 
+-- On ASSIGN reduce production pointer_expression -> STAR pointer_expression 
+
+State 57:
+while_statement -> WHILE L_PAREN expression . R_PAREN block_statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On R_PAREN shift to state 58
+
+State 58:
+while_statement -> WHILE L_PAREN expression R_PAREN . block_statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On L_BRACE shift to state 59
+-- On block_statement shift to state 97
+
+State 59:
+block_statement -> L_BRACE . statement_list R_BRACE [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ELSE ]
+-- On WHILE shift to state 15
+-- On VAR shift to state 60
+-- On STAR shift to state 66
+-- On OUTPUT shift to state 70
+-- On IF shift to state 72
+-- On IDENTIFIER shift to state 1
+-- On while_statement shift to state 79
+-- On statement_without_trailing_substatement shift to state 80
+-- On statement_list_nonempty shift to state 81
+-- On statement_list shift to state 94
+-- On statement shift to state 96
+-- On output_statement shift to state 83
+-- On local_variable_declarations_statement shift to state 85
+-- On if_then_statement shift to state 87
+-- On if_then_else_statement shift to state 88
+-- On identifier shift to state 89
+-- On assignment shift to state 92
+-- On R_BRACE reduce production statement_list -> 
+
+State 60:
+local_variable_declarations_statement -> VAR . local_variable_declaration_list [ SEMICOLON ]
+-- On IDENTIFIER shift to state 1
+-- On local_variable_declaration_list_nonempty shift to state 61
+-- On local_variable_declaration_list shift to state 64
+-- On identifier shift to state 65
+
+State 61:
+local_variable_declaration_list -> local_variable_declaration_list_nonempty . [ SEMICOLON ]
+local_variable_declaration_list_nonempty -> local_variable_declaration_list_nonempty . COMMA identifier [ SEMICOLON COMMA ]
+-- On COMMA shift to state 62
+-- On SEMICOLON reduce production local_variable_declaration_list -> local_variable_declaration_list_nonempty 
+
+State 62:
+local_variable_declaration_list_nonempty -> local_variable_declaration_list_nonempty COMMA . identifier [ SEMICOLON COMMA ]
+-- On IDENTIFIER shift to state 1
+-- On identifier shift to state 63
+
+State 63:
+local_variable_declaration_list_nonempty -> local_variable_declaration_list_nonempty COMMA identifier . [ SEMICOLON COMMA ]
+-- On SEMICOLON reduce production local_variable_declaration_list_nonempty -> local_variable_declaration_list_nonempty COMMA identifier 
+-- On COMMA reduce production local_variable_declaration_list_nonempty -> local_variable_declaration_list_nonempty COMMA identifier 
+
+State 64:
+local_variable_declarations_statement -> VAR local_variable_declaration_list . [ SEMICOLON ]
+-- On SEMICOLON reduce production local_variable_declarations_statement -> VAR local_variable_declaration_list 
+
+State 65:
+local_variable_declaration_list_nonempty -> identifier . [ SEMICOLON COMMA ]
+-- On SEMICOLON reduce production local_variable_declaration_list_nonempty -> identifier 
+-- On COMMA reduce production local_variable_declaration_list_nonempty -> identifier 
+
+State 66:
+assignment -> STAR . expression ASSIGN expression [ SEMICOLON ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On relational_expression shift to state 25
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 28
+-- On multiplicative_expression shift to state 29
+-- On identifier shift to state 32
+-- On expression shift to state 67
+-- On equality_expression shift to state 35
+-- On additive_expression shift to state 38
+
+State 67:
+assignment -> STAR expression . ASSIGN expression [ SEMICOLON ]
+-- On ASSIGN shift to state 68
+
+State 68:
+assignment -> STAR expression ASSIGN . expression [ SEMICOLON ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On relational_expression shift to state 25
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 28
+-- On multiplicative_expression shift to state 29
+-- On identifier shift to state 32
+-- On expression shift to state 69
+-- On equality_expression shift to state 35
+-- On additive_expression shift to state 38
+
+State 69:
+assignment -> STAR expression ASSIGN expression . [ SEMICOLON ]
+-- On SEMICOLON reduce production assignment -> STAR expression ASSIGN expression 
+
+State 70:
+output_statement -> OUTPUT . expression [ SEMICOLON ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On relational_expression shift to state 25
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 28
+-- On multiplicative_expression shift to state 29
+-- On identifier shift to state 32
+-- On expression shift to state 71
+-- On equality_expression shift to state 35
+-- On additive_expression shift to state 38
+
+State 71:
+output_statement -> OUTPUT expression . [ SEMICOLON ]
+-- On SEMICOLON reduce production output_statement -> OUTPUT expression 
+
+State 72:
+if_then_else_statement -> IF . L_PAREN expression R_PAREN block_statement ELSE block_statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+if_then_statement -> IF . L_PAREN expression R_PAREN block_statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On L_PAREN shift to state 73
+
+State 73:
+if_then_else_statement -> IF L_PAREN . expression R_PAREN block_statement ELSE block_statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+if_then_statement -> IF L_PAREN . expression R_PAREN block_statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On relational_expression shift to state 25
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 28
+-- On multiplicative_expression shift to state 29
+-- On identifier shift to state 32
+-- On expression shift to state 74
+-- On equality_expression shift to state 35
+-- On additive_expression shift to state 38
+
+State 74:
+if_then_else_statement -> IF L_PAREN expression . R_PAREN block_statement ELSE block_statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+if_then_statement -> IF L_PAREN expression . R_PAREN block_statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On R_PAREN shift to state 75
+
+State 75:
+if_then_else_statement -> IF L_PAREN expression R_PAREN . block_statement ELSE block_statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+if_then_statement -> IF L_PAREN expression R_PAREN . block_statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On L_BRACE shift to state 59
+-- On block_statement shift to state 76
+
+State 76:
+if_then_else_statement -> IF L_PAREN expression R_PAREN block_statement . ELSE block_statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+if_then_statement -> IF L_PAREN expression R_PAREN block_statement . [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On ELSE shift to state 77
+-- On WHILE reduce production if_then_statement -> IF L_PAREN expression R_PAREN block_statement 
+-- On VAR reduce production if_then_statement -> IF L_PAREN expression R_PAREN block_statement 
+-- On STAR reduce production if_then_statement -> IF L_PAREN expression R_PAREN block_statement 
+-- On R_BRACE reduce production if_then_statement -> IF L_PAREN expression R_PAREN block_statement 
+-- On RETURN reduce production if_then_statement -> IF L_PAREN expression R_PAREN block_statement 
+-- On OUTPUT reduce production if_then_statement -> IF L_PAREN expression R_PAREN block_statement 
+-- On IF reduce production if_then_statement -> IF L_PAREN expression R_PAREN block_statement 
+-- On IDENTIFIER reduce production if_then_statement -> IF L_PAREN expression R_PAREN block_statement 
+
+State 77:
+if_then_else_statement -> IF L_PAREN expression R_PAREN block_statement ELSE . block_statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On L_BRACE shift to state 59
+-- On block_statement shift to state 78
+
+State 78:
+if_then_else_statement -> IF L_PAREN expression R_PAREN block_statement ELSE block_statement . [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On WHILE reduce production if_then_else_statement -> IF L_PAREN expression R_PAREN block_statement ELSE block_statement 
+-- On VAR reduce production if_then_else_statement -> IF L_PAREN expression R_PAREN block_statement ELSE block_statement 
+-- On STAR reduce production if_then_else_statement -> IF L_PAREN expression R_PAREN block_statement ELSE block_statement 
+-- On R_BRACE reduce production if_then_else_statement -> IF L_PAREN expression R_PAREN block_statement ELSE block_statement 
+-- On RETURN reduce production if_then_else_statement -> IF L_PAREN expression R_PAREN block_statement ELSE block_statement 
+-- On OUTPUT reduce production if_then_else_statement -> IF L_PAREN expression R_PAREN block_statement ELSE block_statement 
+-- On IF reduce production if_then_else_statement -> IF L_PAREN expression R_PAREN block_statement ELSE block_statement 
+-- On IDENTIFIER reduce production if_then_else_statement -> IF L_PAREN expression R_PAREN block_statement ELSE block_statement 
+
+State 79:
+statement -> while_statement . [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On WHILE reduce production statement -> while_statement 
+-- On VAR reduce production statement -> while_statement 
+-- On STAR reduce production statement -> while_statement 
+-- On R_BRACE reduce production statement -> while_statement 
+-- On RETURN reduce production statement -> while_statement 
+-- On OUTPUT reduce production statement -> while_statement 
+-- On IF reduce production statement -> while_statement 
+-- On IDENTIFIER reduce production statement -> while_statement 
+
+State 80:
+statement -> statement_without_trailing_substatement . [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On WHILE reduce production statement -> statement_without_trailing_substatement 
+-- On VAR reduce production statement -> statement_without_trailing_substatement 
+-- On STAR reduce production statement -> statement_without_trailing_substatement 
+-- On R_BRACE reduce production statement -> statement_without_trailing_substatement 
+-- On RETURN reduce production statement -> statement_without_trailing_substatement 
+-- On OUTPUT reduce production statement -> statement_without_trailing_substatement 
+-- On IF reduce production statement -> statement_without_trailing_substatement 
+-- On IDENTIFIER reduce production statement -> statement_without_trailing_substatement 
+
+State 81:
+statement_list -> statement_list_nonempty . [ R_BRACE RETURN ]
+statement_list_nonempty -> statement_list_nonempty . statement [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On WHILE shift to state 15
+-- On VAR shift to state 60
+-- On STAR shift to state 66
+-- On OUTPUT shift to state 70
+-- On IF shift to state 72
+-- On IDENTIFIER shift to state 1
+-- On while_statement shift to state 79
+-- On statement_without_trailing_substatement shift to state 80
+-- On statement shift to state 82
+-- On output_statement shift to state 83
+-- On local_variable_declarations_statement shift to state 85
+-- On if_then_statement shift to state 87
+-- On if_then_else_statement shift to state 88
+-- On identifier shift to state 89
+-- On assignment shift to state 92
+-- On R_BRACE reduce production statement_list -> statement_list_nonempty 
+-- On RETURN reduce production statement_list -> statement_list_nonempty 
+
+State 82:
+statement_list_nonempty -> statement_list_nonempty statement . [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On WHILE reduce production statement_list_nonempty -> statement_list_nonempty statement 
+-- On VAR reduce production statement_list_nonempty -> statement_list_nonempty statement 
+-- On STAR reduce production statement_list_nonempty -> statement_list_nonempty statement 
+-- On R_BRACE reduce production statement_list_nonempty -> statement_list_nonempty statement 
+-- On RETURN reduce production statement_list_nonempty -> statement_list_nonempty statement 
+-- On OUTPUT reduce production statement_list_nonempty -> statement_list_nonempty statement 
+-- On IF reduce production statement_list_nonempty -> statement_list_nonempty statement 
+-- On IDENTIFIER reduce production statement_list_nonempty -> statement_list_nonempty statement 
+
+State 83:
+statement_without_trailing_substatement -> output_statement . SEMICOLON [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On SEMICOLON shift to state 84
+
+State 84:
+statement_without_trailing_substatement -> output_statement SEMICOLON . [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On WHILE reduce production statement_without_trailing_substatement -> output_statement SEMICOLON 
+-- On VAR reduce production statement_without_trailing_substatement -> output_statement SEMICOLON 
+-- On STAR reduce production statement_without_trailing_substatement -> output_statement SEMICOLON 
+-- On R_BRACE reduce production statement_without_trailing_substatement -> output_statement SEMICOLON 
+-- On RETURN reduce production statement_without_trailing_substatement -> output_statement SEMICOLON 
+-- On OUTPUT reduce production statement_without_trailing_substatement -> output_statement SEMICOLON 
+-- On IF reduce production statement_without_trailing_substatement -> output_statement SEMICOLON 
+-- On IDENTIFIER reduce production statement_without_trailing_substatement -> output_statement SEMICOLON 
+
+State 85:
+statement_without_trailing_substatement -> local_variable_declarations_statement . SEMICOLON [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On SEMICOLON shift to state 86
+
+State 86:
+statement_without_trailing_substatement -> local_variable_declarations_statement SEMICOLON . [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On WHILE reduce production statement_without_trailing_substatement -> local_variable_declarations_statement SEMICOLON 
+-- On VAR reduce production statement_without_trailing_substatement -> local_variable_declarations_statement SEMICOLON 
+-- On STAR reduce production statement_without_trailing_substatement -> local_variable_declarations_statement SEMICOLON 
+-- On R_BRACE reduce production statement_without_trailing_substatement -> local_variable_declarations_statement SEMICOLON 
+-- On RETURN reduce production statement_without_trailing_substatement -> local_variable_declarations_statement SEMICOLON 
+-- On OUTPUT reduce production statement_without_trailing_substatement -> local_variable_declarations_statement SEMICOLON 
+-- On IF reduce production statement_without_trailing_substatement -> local_variable_declarations_statement SEMICOLON 
+-- On IDENTIFIER reduce production statement_without_trailing_substatement -> local_variable_declarations_statement SEMICOLON 
+
+State 87:
+statement -> if_then_statement . [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On WHILE reduce production statement -> if_then_statement 
+-- On VAR reduce production statement -> if_then_statement 
+-- On STAR reduce production statement -> if_then_statement 
+-- On R_BRACE reduce production statement -> if_then_statement 
+-- On RETURN reduce production statement -> if_then_statement 
+-- On OUTPUT reduce production statement -> if_then_statement 
+-- On IF reduce production statement -> if_then_statement 
+-- On IDENTIFIER reduce production statement -> if_then_statement 
+
+State 88:
+statement -> if_then_else_statement . [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On WHILE reduce production statement -> if_then_else_statement 
+-- On VAR reduce production statement -> if_then_else_statement 
+-- On STAR reduce production statement -> if_then_else_statement 
+-- On R_BRACE reduce production statement -> if_then_else_statement 
+-- On RETURN reduce production statement -> if_then_else_statement 
+-- On OUTPUT reduce production statement -> if_then_else_statement 
+-- On IF reduce production statement -> if_then_else_statement 
+-- On IDENTIFIER reduce production statement -> if_then_else_statement 
+
+State 89:
+assignment -> identifier . ASSIGN expression [ SEMICOLON ]
+-- On ASSIGN shift to state 90
+
+State 90:
+assignment -> identifier ASSIGN . expression [ SEMICOLON ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On relational_expression shift to state 25
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 28
+-- On multiplicative_expression shift to state 29
+-- On identifier shift to state 32
+-- On expression shift to state 91
+-- On equality_expression shift to state 35
+-- On additive_expression shift to state 38
+
+State 91:
+assignment -> identifier ASSIGN expression . [ SEMICOLON ]
+-- On SEMICOLON reduce production assignment -> identifier ASSIGN expression 
+
+State 92:
+statement_without_trailing_substatement -> assignment . SEMICOLON [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On SEMICOLON shift to state 93
+
+State 93:
+statement_without_trailing_substatement -> assignment SEMICOLON . [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On WHILE reduce production statement_without_trailing_substatement -> assignment SEMICOLON 
+-- On VAR reduce production statement_without_trailing_substatement -> assignment SEMICOLON 
+-- On STAR reduce production statement_without_trailing_substatement -> assignment SEMICOLON 
+-- On R_BRACE reduce production statement_without_trailing_substatement -> assignment SEMICOLON 
+-- On RETURN reduce production statement_without_trailing_substatement -> assignment SEMICOLON 
+-- On OUTPUT reduce production statement_without_trailing_substatement -> assignment SEMICOLON 
+-- On IF reduce production statement_without_trailing_substatement -> assignment SEMICOLON 
+-- On IDENTIFIER reduce production statement_without_trailing_substatement -> assignment SEMICOLON 
+
+State 94:
+block_statement -> L_BRACE statement_list . R_BRACE [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ELSE ]
+-- On R_BRACE shift to state 95
+
+State 95:
+block_statement -> L_BRACE statement_list R_BRACE . [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ELSE ]
+-- On WHILE reduce production block_statement -> L_BRACE statement_list R_BRACE 
+-- On VAR reduce production block_statement -> L_BRACE statement_list R_BRACE 
+-- On STAR reduce production block_statement -> L_BRACE statement_list R_BRACE 
+-- On R_BRACE reduce production block_statement -> L_BRACE statement_list R_BRACE 
+-- On RETURN reduce production block_statement -> L_BRACE statement_list R_BRACE 
+-- On OUTPUT reduce production block_statement -> L_BRACE statement_list R_BRACE 
+-- On IF reduce production block_statement -> L_BRACE statement_list R_BRACE 
+-- On IDENTIFIER reduce production block_statement -> L_BRACE statement_list R_BRACE 
+-- On ELSE reduce production block_statement -> L_BRACE statement_list R_BRACE 
+
+State 96:
+statement_list_nonempty -> statement . [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On WHILE reduce production statement_list_nonempty -> statement 
+-- On VAR reduce production statement_list_nonempty -> statement 
+-- On STAR reduce production statement_list_nonempty -> statement 
+-- On R_BRACE reduce production statement_list_nonempty -> statement 
+-- On RETURN reduce production statement_list_nonempty -> statement 
+-- On OUTPUT reduce production statement_list_nonempty -> statement 
+-- On IF reduce production statement_list_nonempty -> statement 
+-- On IDENTIFIER reduce production statement_list_nonempty -> statement 
+
+State 97:
+while_statement -> WHILE L_PAREN expression R_PAREN block_statement . [ WHILE VAR STAR R_BRACE RETURN OUTPUT IF IDENTIFIER ]
+-- On WHILE reduce production while_statement -> WHILE L_PAREN expression R_PAREN block_statement 
+-- On VAR reduce production while_statement -> WHILE L_PAREN expression R_PAREN block_statement 
+-- On STAR reduce production while_statement -> WHILE L_PAREN expression R_PAREN block_statement 
+-- On R_BRACE reduce production while_statement -> WHILE L_PAREN expression R_PAREN block_statement 
+-- On RETURN reduce production while_statement -> WHILE L_PAREN expression R_PAREN block_statement 
+-- On OUTPUT reduce production while_statement -> WHILE L_PAREN expression R_PAREN block_statement 
+-- On IF reduce production while_statement -> WHILE L_PAREN expression R_PAREN block_statement 
+-- On IDENTIFIER reduce production while_statement -> WHILE L_PAREN expression R_PAREN block_statement 
+
+State 98:
+function_body -> L_BRACE statement_list . return_statement R_BRACE [ IDENTIFIER EOF ]
+-- On RETURN shift to state 99
+-- On return_statement shift to state 102
+
+State 99:
+return_statement -> RETURN . expression SEMICOLON [ R_BRACE ]
+-- On STAR shift to state 17
+-- On NULL shift to state 18
+-- On MALLOC shift to state 19
+-- On L_PAREN shift to state 20
+-- On INTEGER_LITERAL shift to state 21
+-- On INPUT shift to state 22
+-- On IDENTIFIER shift to state 1
+-- On AMP shift to state 23
+-- On relational_expression shift to state 25
+-- On primary_expression shift to state 27
+-- On pointer_expression shift to state 28
+-- On multiplicative_expression shift to state 29
+-- On identifier shift to state 32
+-- On expression shift to state 100
+-- On equality_expression shift to state 35
+-- On additive_expression shift to state 38
+
+State 100:
+return_statement -> RETURN expression . SEMICOLON [ R_BRACE ]
+-- On SEMICOLON shift to state 101
+
+State 101:
+return_statement -> RETURN expression SEMICOLON . [ R_BRACE ]
+-- On R_BRACE reduce production return_statement -> RETURN expression SEMICOLON 
+
+State 102:
+function_body -> L_BRACE statement_list return_statement . R_BRACE [ IDENTIFIER EOF ]
+-- On R_BRACE shift to state 103
+
+State 103:
+function_body -> L_BRACE statement_list return_statement R_BRACE . [ IDENTIFIER EOF ]
+-- On IDENTIFIER reduce production function_body -> L_BRACE statement_list return_statement R_BRACE 
+-- On EOF reduce production function_body -> L_BRACE statement_list return_statement R_BRACE 
+
+State 104:
+function_declaration -> identifier function_params function_body . [ IDENTIFIER EOF ]
+-- On IDENTIFIER reduce production function_declaration -> identifier function_params function_body 
+-- On EOF reduce production function_declaration -> identifier function_params function_body 
+
+State 105:
+goal' -> goal . [ # ]
+-- On # accept goal
+
+State 106:
+list(function_declaration) -> function_declaration . list(function_declaration) [ EOF ]
+-- On IDENTIFIER shift to state 1
+-- On list(function_declaration) shift to state 107
+-- On identifier shift to state 4
+-- On function_declaration shift to state 106
+-- On EOF reduce production list(function_declaration) -> 
+
+State 107:
+list(function_declaration) -> function_declaration list(function_declaration) . [ EOF ]
+-- On EOF reduce production list(function_declaration) -> function_declaration list(function_declaration) 
+
