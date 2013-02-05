@@ -1,0 +1,7 @@
+.settings/
+_build/
+.paths
+.project
+.projectSettings
+tip
+tip.byte
