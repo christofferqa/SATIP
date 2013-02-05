@@ -72,6 +72,7 @@ for (int x : List(1, 2, 3))
 ]}
 *)
 let fold xs a f = List.fold_left (fun a x -> f x a) a xs
+let fold_right xs a f = List.fold_right (fun a x -> f x a) xs a
 
 (** Fold over the product of two lists: Xs * Ys.
 

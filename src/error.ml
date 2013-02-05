@@ -1,4 +1,6 @@
-(** Functions and type declarations having to do with error handling. *)
+(**
+  * Functions and type declarations having to do with error handling.
+	*)
 
 (** Function for signaling a "hole" that needes to completed towards a full tip compiler *)
 let tip_not_implemented_yet file msg =

@@ -50,9 +50,9 @@ let compile filename =
   let ()   = print_endline "Applying phases:" in
 	let ()   = print_newline() in
   let prog = apply parse_file filename "parsing" in
-	let () = apply Astpp.pp_program prog "pretty-printing" in
-	let tenv = apply Environment.env_program prog "environment building" in
-	()
+	let () = apply Astpp.pp_program prog "ast pretty-printing" in
+	let env = apply Environment.env_program prog "environment building" in
+	apply Environmentpp.pp_env env "environment pretty-printing"
 
 
 let _ =
@@ -60,24 +60,13 @@ let _ =
 	let usagemsg = "Usage: tip <filename>" in
 	let argspec = Arg.align [] in
 	Arg.parse argspec (fun s -> filename := s) usagemsg;
-	if !Sys.interactive
-	then
-		begin
-  		(* We are in the interactive toplevel *)
-  		print_newline ();
-  		print_endline "Welcome to the TIP Compiler.\n";
-  		print_endline "To parse a file use:";
-  		print_endline "  # Main.parse_file \"myfile.tip\";;\n";
-  		print_endline "Happy hacking!\n"
-		end
-	else
-		begin
-  		(* We are in the batch compiler *)
-  		print_endline "The TIP compiler.";
-  		print_newline ();
-  		if !filename = "" then
-				(print_endline "Error: No filename provided";
-  			Arg.usage argspec usagemsg)
-  		else
-				compile !filename
-		end
+	begin
+		(* We are in the batch compiler *)
+		print_endline "The TIP compiler.";
+		print_newline ();
+		if !filename = "" then
+			(print_endline "Error: No filename provided";
+			Arg.usage argspec usagemsg)
+		else
+			compile !filename
+	end

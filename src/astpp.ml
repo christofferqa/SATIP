@@ -1,4 +1,6 @@
-(** Pretty printer for the AST *)
+(**
+  * Pretty printer for the AST.
+	*)
 
 open Printf
 open Ast
@@ -161,7 +163,8 @@ let rec pp_function (func: Ast.function_decl_desc) =
 	print_newline();
 	pp_stms func.function_body "  ";
 	print_newline();
-	printf "}"
+	printf "}";
+	print_newline()
 
 and
 
@@ -172,7 +175,6 @@ pp_functions (funcs: Ast.function_decl list) =
 		pp_function func.function_decl
 	| func :: funcs' ->
 		pp_function func.function_decl;
-		print_newline();
 		print_newline();
 		pp_functions funcs'
 
