@@ -19,8 +19,8 @@
        "while",  WHILE ]
 
   let tok_as_string t = match t with
-	  | EOF -> "eof"
-		
+    | EOF -> "eof"
+    
     | ELSE -> "else"
     | IF -> "if"
     | INPUT -> "input"
@@ -53,8 +53,8 @@
     | DIV -> "/"
 
     (* Pointer arithmetic *)
-		| AMP -> "&"
-		
+    | AMP -> "&"
+    
     (* Literals and identifiers *)
     | INTEGER_LITERAL i -> "INTEGER_LITERAL" ^ i
     | IDENTIFIER s -> s (*"IDENTIFIER("^s^")"*)
@@ -136,7 +136,7 @@ rule token = parse
   | '/'             { DIV }
 
 (* Pointer arithmetic *)
-	| "&"							{ AMP }
+  | "&"              { AMP }
 
 (* Literals and identifiers *)
   | decimal_numeral as i { INTEGER_LITERAL i }

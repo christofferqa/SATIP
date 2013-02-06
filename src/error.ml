@@ -1,6 +1,6 @@
 (**
   * Functions and type declarations having to do with error handling.
-	*)
+  *)
 
 (** Function for signaling a "hole" that needes to completed towards a full tip compiler *)
 let tip_not_implemented_yet file msg =
@@ -19,7 +19,7 @@ let rec print_line pos =
   let rec read_line i = match i with
     | 1 -> input_line inch;
     | n -> let _ = input_line inch in
-	   read_line (i-1) in
+     read_line (i-1) in
   let line =
     try read_line pos.Lexing.pos_lnum
     with End_of_file ->
@@ -50,7 +50,7 @@ let error pos message =
     begin
       print_string "Error: ";
       print_endline message;
-			exit 0
+      exit 0
     end
   else
     begin
