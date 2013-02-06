@@ -4,7 +4,7 @@
 
 (**
   * A node which has a list of predecessors, a statement and a list of successors
-	*)
+  *)
 
 type node =
 	| StmNode of node list * stm * node list
