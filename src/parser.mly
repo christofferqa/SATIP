@@ -161,17 +161,6 @@ statement
     { $1 }
   ;
 
-/*
-statement_no_short_if
-  : statement_without_trailing_substatement
-    { $1 }
-  | if_then_else_statement_no_short_if
-    { $1 }
-  | while_statement_no_short_if
-    { $1 }
-  ;
-*/
-
 statement_without_trailing_substatement
   : assignment SEMICOLON
     { $1 }
@@ -184,8 +173,8 @@ statement_without_trailing_substatement
 assignment
   : identifier ASSIGN expression
     { make_stm $startpos (Ast.VarAssignment($1,$3)) }
-  | STAR expression ASSIGN expression
-    { make_stm $startpos (Ast.PointerAssignment($2,$4)) }
+  | identifier_deref ASSIGN expression
+    { make_stm $startpos (Ast.PointerAssignment($1,$3)) }
   ;
 
 output_statement
@@ -225,24 +214,10 @@ if_then_else_statement
     { make_stm $startpos (Ast.IfThenElse($3,$5,$7)) }
   ;
 
-/*
-if_then_else_statement_no_short_if
-  : IF L_PAREN expression R_PAREN statement_no_short_if ELSE statement
-    { make_stm $startpos (Ast.IfThenElse($3,$5,$7)) }
-  ;
-*/
-
 while_statement
   : WHILE L_PAREN expression R_PAREN block_statement
     { make_stm $startpos (Ast.While($3,$5)) }
   ;
-  
-/*
-while_statement_no_short_if
-  : WHILE L_PAREN expression R_PAREN statement_no_short_if
-    { make_stm $startpos (Ast.While($3,$5)) }
-  ;
-*/
 
 /* ********** Expressions ********** */
 
@@ -287,7 +262,7 @@ pointer_expression
   : primary_expression
     { $1 }
   | AMP identifier
-    { make_exp $startpos (Ast.Unop(Ast.Pointer, make_exp $startpos (Ast.Var($2)))) }
+    { make_exp $startpos (Ast.Unop(Ast.Pointer, make_exp $startpos (Ast.Identifier($2)))) }
   | STAR pointer_expression
     { make_exp $startpos (Ast.Unop(Ast.Dereference, $2)) }
   ;
@@ -298,7 +273,7 @@ primary_expression
   |  NULL
      { make_exp $startpos (Ast.Null) }
   | identifier
-     { make_exp $startpos (Ast.Var($1)) }
+     { make_exp $startpos (Ast.Identifier($1)) }
   |  INPUT
      { make_exp $startpos (Ast.Input) }
   | MALLOC
@@ -314,6 +289,11 @@ primary_expression
 identifier
   : IDENTIFIER
     {make_identifier $startpos $1}
+  ;
+
+identifier_deref
+  : STAR identifier
+    { make_exp $startpos (Ast.Unop(Ast.Dereference, make_exp $startpos (Ast.Identifier $2))) }
   ;
 
 function_arguments

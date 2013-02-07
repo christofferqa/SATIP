@@ -35,7 +35,7 @@ let pp_binop (binop: Ast.binop) =
 let pp_unop (unop: Ast.unop) =
   match unop with
   | Pointer -> printf "&"
-  | Dereference -> printf "!"
+  | Dereference -> printf "*"
 
 
 (**
@@ -45,7 +45,7 @@ let pp_unop (unop: Ast.unop) =
 let rec pp_exp (exp: Ast.exp) =
   match exp.exp with
   | IntConst c -> printf "%s" c
-  | Var id -> pp_identifier id
+  | Identifier id -> pp_identifier id
   | Binop (exp1, binop, exp2) ->
     pp_exp exp1;
     pp_binop binop;
@@ -62,7 +62,9 @@ let rec pp_exp (exp: Ast.exp) =
     pp_exps exps;
     printf ")"
   | PointerInvocation (exp', exps) ->
+    printf "(";
     pp_exp exp';
+    printf ")";
     printf "(";
     pp_exps exps;
     printf ")"

@@ -31,7 +31,7 @@ type unop =
 type exp = { exp_pos: Lexing.position; exp: exp_desc }
 and exp_desc =
   | IntConst of string
-  | Var of identifier
+  | Identifier of identifier
   | Binop of exp * binop * exp
   | Unop of unop * exp
   | Input

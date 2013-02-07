@@ -50,9 +50,11 @@ let compile filename =
   let ()   = print_endline "Applying phases:" in
   let ()   = print_newline() in
   let prog = apply parse_file filename "parsing" in
-  let () = apply Astpp.pp_program prog "ast pretty-printing" in
-  let env = apply Environment.env_program prog "environment building" in
-  apply Environmentpp.pp_env env "environment pretty-printing"
+  let ()   = apply Astpp.pp_program prog "ast pretty-printing" in
+  let east = apply Environment.env_program prog "environment building" in
+  let ()   = apply Environmentpp.pp_env east "environment pretty-printing" in
+  let tcc  = apply TypeChecking.type_check_program east "type checking" in
+  apply TypeCheckingpp.pp_type_constraints tcc "type checking pretty-printing"
 
 
 let _ =

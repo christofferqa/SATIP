@@ -50,7 +50,7 @@ let env_check_identifier_is_declared (id: Ast.identifier) (map: env) =
 
 let rec env_check_exp (exp: Ast.exp) (map: env) =
   match exp.Ast.exp with
-  | Ast.Var id ->
+  | Ast.Identifier id ->
     env_check_identifier_is_declared id map
   | Ast.Binop (exp1, binop, exp2) ->
     let () = env_check_exp exp1 map in
