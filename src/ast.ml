@@ -2,10 +2,7 @@
   * AST type produced by the parser.
   *)
 
-type identifier = { identifier_pos : Lexing.position; identifier : string } 
-
-let i2p (id: identifier): Lexing.position = id.identifier_pos
-let i2s (id: identifier): string = id.identifier
+type identifier = { identifier_pos : Lexing.position; identifier : string }
 
 (**
   * Operators
@@ -75,3 +72,22 @@ and function_decl_desc
 type program
   = { program_name : string;
       program_decl : function_decl list }
+
+
+(**
+  * Convenient helper functions
+  *)
+
+
+let i2p (id: identifier): Lexing.position = id.identifier_pos
+let i2s (id: identifier): string = id.identifier
+
+let i2exp (id: identifier): exp = { exp_pos = (i2p id); exp = Identifier id }
+
+let is_identifier (exp: exp): bool =
+  match exp.exp with
+  | Identifier id -> true
+  | _ -> false
+
+let expressions_equal (exp1: exp) (exp2: exp): bool =
+  exp1.exp = exp2.exp
