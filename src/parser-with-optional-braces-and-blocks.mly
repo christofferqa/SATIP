@@ -2,19 +2,19 @@
 %{
   let make_identifier pos i =
     { Ast.identifier_pos = pos;
-		  Ast.identifier = i }
+      Ast.identifier = i }
 
   let make_exp pos e =
     { Ast.exp_pos = pos;
-		  Ast.exp = e }
-	
+      Ast.exp = e }
+  
   let make_stm pos s =
     { Ast.stm_pos = pos;
-		  Ast.stm = s }
+      Ast.stm = s }
 
   let make_function pos decl =
     { Ast.function_decl_pos = pos;
-		  Ast.function_decl = decl }
+      Ast.function_decl = decl }
 
   let make_function_decl (name, formals, body) =
     { Ast.function_name    = name;
@@ -109,8 +109,8 @@ argument_list_nonempty
 
 argument
   : expression
-	  { $1 }
-	;
+    { $1 }
+  ;
 
 /* ********** Function declarations *********** */
 
@@ -131,8 +131,8 @@ function_body
 
 return_statement
   : RETURN expression SEMICOLON
-	  { make_stm $startpos (Ast.Return($2)) }
-	;
+    { make_stm $startpos (Ast.Return($2)) }
+  ;
 
 /* ********** Blocks and statements ********** */
 
@@ -146,7 +146,7 @@ statement_list
 statement_list_nonempty
   : statement
     { [$1] }
-	| statement_list_nonempty statement
+  | statement_list_nonempty statement
     { $2 :: $1 }
   ;
 
@@ -175,10 +175,10 @@ statement_without_trailing_substatement
     { $1 }
   | output_statement SEMICOLON
     { $1 }
-	| local_variable_declarations_statement SEMICOLON
-	  { $1 }
-	| block_statement
-	  { $1 }
+  | local_variable_declarations_statement SEMICOLON
+    { $1 }
+  | block_statement
+    { $1 }
   ;
 
 assignment
@@ -195,14 +195,14 @@ output_statement
 
 local_variable_declarations_statement
   : VAR local_variable_declaration_list
-	  { make_stm $startpos (Ast.LocalDecl($2)) }
-	;
+    { make_stm $startpos (Ast.LocalDecl($2)) }
+  ;
 
 local_variable_declaration_list
   : local_variable_declaration_list_nonempty
     { List.rev $1 }
   ;
-	
+  
 local_variable_declaration_list_nonempty
   : identifier
     { [$1] }
@@ -212,8 +212,8 @@ local_variable_declaration_list_nonempty
 
 block_statement
   : L_BRACE statement_list R_BRACE
-	  { make_stm $startpos (Ast.Block($2)) }
-	;
+    { make_stm $startpos (Ast.Block($2)) }
+  ;
 
 if_then_statement
   : IF L_PAREN expression R_PAREN statement
@@ -282,10 +282,10 @@ multiplicative_expression
 pointer_expression
   : primary_expression
     { $1 }
-	| AMP identifier
-	  { make_exp $startpos (Ast.Unop(Ast.Pointer, make_exp $startpos (Ast.Var($2)))) }
-	| STAR pointer_expression
-	  { make_exp $startpos (Ast.Unop(Ast.Dereference, $2)) }
+  | AMP identifier
+    { make_exp $startpos (Ast.Unop(Ast.Pointer, make_exp $startpos (Ast.Var($2)))) }
+  | STAR pointer_expression
+    { make_exp $startpos (Ast.Unop(Ast.Dereference, $2)) }
   ;
 
 primary_expression
@@ -293,11 +293,11 @@ primary_expression
      { make_exp $startpos (Ast.IntConst $1) }
   |  NULL
      { make_exp $startpos (Ast.Null) }
-	| identifier
+  | identifier
      { make_exp $startpos (Ast.Var($1)) }
-	|	INPUT
+  |  INPUT
      { make_exp $startpos (Ast.Input) }
-	| MALLOC
+  | MALLOC
      { make_exp $startpos (Ast.Malloc) }
   |  L_PAREN expression R_PAREN
      { $2 }
@@ -309,10 +309,10 @@ primary_expression
 
 identifier
   : IDENTIFIER
-	  {make_identifier $startpos $1}
-	;
+    {make_identifier $startpos $1}
+  ;
 
 function_arguments
-	: L_PAREN argument_list R_PAREN
-	  { $2 }
-	;
+  : L_PAREN argument_list R_PAREN
+    { $2 }
+  ;

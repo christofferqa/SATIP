@@ -63,11 +63,11 @@ let add_arrow from_node to_node map =
 let add_arrows arrows map =
   List.fold_left (fun map' (from_node, to_node) -> add_arrow from_node to_node map') map arrows
 
-
 (**
   * A function to build a control flow graph from a program.
   * The returned node is the root-element of the CFG.
   *)
+
 
 let rec generate_cfg_of_single_stm stm =
   match stm.stm with
@@ -220,5 +220,4 @@ let rec compress_graph g =
 let make_cfg (prog: Ast.program) : cfg =
     Error.tip_not_implemented_yet "cfg.ml" "Control Flow Graph not yet implemented."
 
-type stm = { stm_pos: Lexing.position; stm: stm_desc }
-and stm_desc =
+

@@ -9,7 +9,7 @@ let i2s (id: identifier): string = id.identifier
 
 (**
   * Operators
-	*)
+  *)
 
 type binop =
   | Plus
@@ -21,21 +21,21 @@ type binop =
 
 type unop =
   | Pointer
-	| Dereference
+  | Dereference
 
 
 (**
   * Expressions
-	*)
+  *)
 
 type exp = { exp_pos: Lexing.position; exp: exp_desc }
 and exp_desc =
   | IntConst of string
-  | Var of identifier
+  | Identifier of identifier
   | Binop of exp * binop * exp
   | Unop of unop * exp
-	| Input
-	| Malloc
+  | Input
+  | Malloc
   | Null
   | FunctionInvocation of identifier * exp list
   | PointerInvocation of exp * exp list
@@ -43,13 +43,13 @@ and exp_desc =
 
 (**
   * Statements
-	*)
+  *)
 
 type stm = { stm_pos: Lexing.position; stm: stm_desc }
 and stm_desc =
   | VarAssignment of identifier * exp
   | PointerAssignment of exp * exp
-	| Output of exp
+  | Output of exp
   | IfThen of exp * stm list
   | IfThenElse of exp * stm list * stm list
   | While of exp * stm list
@@ -59,18 +59,18 @@ and stm_desc =
 
 (**
   * Functions
-	*)
+  *)
 
 type function_decl = { function_decl_pos: Lexing.position; function_decl: function_decl_desc }
 and function_decl_desc
   = { function_name    : identifier;
       function_formals : identifier list;
-			function_body    : stm list }
+      function_body    : stm list }
 
 
 (**
   * Programs
-	*)
+  *)
 
 type program
   = { program_name : string;
