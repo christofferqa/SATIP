@@ -33,9 +33,9 @@ pp_type_exp_variables (type_exp_vars: T.type_exp_variable list) =
 
 
 let pp_type_constraint ((type_exp_var1, type_exp_var2): T.type_constraint) =
-  printf "  [[";
+  printf "  ";
   pp_type_exp_variable type_exp_var1;
-  printf "]] = ";
+  printf " = ";
   pp_type_exp_variable type_exp_var2
 
 

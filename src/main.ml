@@ -54,7 +54,10 @@ let compile filename =
   let east = apply Environment.env_program prog "building environment" in
   let ()   = apply Environmentpp.pp_env east "pretty printing environment" in
   let tcc  = apply TypeConstraintGenerator.generate_type_constraints east "generating type constraints" in
-  apply TypeConstraintpp.pp_type_constraints tcc "pretty printing type constraints"
+  let ()   = apply TypeConstraintpp.pp_type_constraints tcc "pretty printing type constraints" in
+  let tcs  = apply TypeConstraintSolver.solve_type_constraints tcc "solving type constraints" in
+  let ()   = apply TypeConstraintpp.pp_type_constraints tcs "pretty printing solution to type constraints" in
+  ()
 
 
 let _ =
