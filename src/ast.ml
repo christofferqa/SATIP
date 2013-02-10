@@ -82,12 +82,12 @@ type program
 let i2p (id: identifier): Lexing.position = id.identifier_pos
 let i2s (id: identifier): string = id.identifier
 
-let i2exp (id: identifier): exp = { exp_pos = (i2p id); exp = Identifier id }
+let i2exp (id: identifier): exp = { exp_pos = (i2p id); exp = (Identifier id) }
 
-let is_identifier (exp: exp): bool =
-  match exp.exp with
-  | Identifier id -> true
-  | _ -> false
+let is_identical_identifiers (exp1: exp) (exp2: exp): bool =
+  match exp1.exp, exp2.exp with
+  | Identifier id1, Identifier id2 -> (i2s id1) = (i2s id2)
+  | _, _ -> false
 
 let expressions_equal (exp1: exp) (exp2: exp): bool =
   exp1.exp = exp2.exp

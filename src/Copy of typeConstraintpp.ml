@@ -12,7 +12,8 @@ let rec pp_type_exp_variable (type_exp_var: T.type_exp_variable) =
   match type_exp_var with
   | T.Alpha -> printf "alpha"
   | T.Int -> printf "int"
-  | T.Expression exp -> printf "[["; (Astpp.pp_exp exp); printf "]]";
+  | T.Identifier id -> printf "[["; Astpp.pp_identifier id; printf "]]";
+  | T.Expression exp -> printf "[["; Astpp.pp_exp exp; printf "]]";
   | T.Pointer type_exp_var' -> printf "&"; pp_type_exp_variable type_exp_var'
   | T.Function (type_exp_vars, type_exp_var') ->
     printf "(";
@@ -40,6 +41,7 @@ let pp_type_constraint ((type_exp_var1, type_exp_var2): T.type_constraint) =
 
 
 let pp_type_constraints (type_constraints: T.type_constraint list) =
+  print_endline "Generated constraints:";
   List.iter (fun (type_constraint: T.type_constraint) ->
     pp_type_constraint type_constraint;
     print_newline()
