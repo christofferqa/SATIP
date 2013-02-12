@@ -1,8 +1,6 @@
 (**
-  * This phase generates a bunch of type constraints, and uses the unification algorithm to find
-  * a solution (i.e. a typing), if there is one.
-  *
-  * See http://cs.brown.edu/courses/cs173/2004/Textbook/12-11-04.pdf for the overall idea.
+  * This phase generates a bunch of type constraints, which is solved using the unification algorithm by
+  * the TypeConstraintSolver phase.
   *)
 
 open Printf
@@ -33,11 +31,14 @@ let rec generate_type_constraints_from_exp (exp: EAst.exp) (constraints: T.type_
     constraints
     
   | Ast.Binop (exp1, binop, exp2) -> (* [[E1]] = [[E2]] = [[E1 op E2]] = int *)
+    let constraints = generate_type_constraints_from_exp exp2 constraints in
+    let constraints = generate_type_constraints_from_exp exp1 constraints in
     (T.Expression exp, T.Int) :: (T.Expression exp1, T.Int) :: (T.Expression exp2, T.Int) :: constraints
       
   | Ast.Unop (unop, exp') ->
     (match unop, exp'.Ast.exp with
      | Ast.Dereference, _ -> (* [[E]] = &[[*E]] *)
+       printf "In a dereference: "; Astpp.pp_exp exp'; print_newline();
        (T.Expression exp', T.Pointer (T.Expression exp)) :: constraints
       
      | Ast.Pointer, Ast.Identifier id -> (* [[&id]] = &[[id]] *)

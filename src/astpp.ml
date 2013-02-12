@@ -95,7 +95,7 @@ let rec pp_stm (stm: Ast.stm) (prefix: string) =
     pp_exp exp;
     printf ";"
   | PointerAssignment (exp1, exp2) ->
-    printf "%s*" prefix;
+    printf "%s" prefix;
     pp_exp exp1;
     printf " = ";
     pp_exp exp2;
