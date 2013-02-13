@@ -1,0 +1,11 @@
+func(b) { 
+	if (b) { // constraint: b should be an integer
+	}
+	return 1;
+}
+
+main() {
+  var arg;
+  arg = malloc;
+  return func(arg); // but we call it with a pointer
+}

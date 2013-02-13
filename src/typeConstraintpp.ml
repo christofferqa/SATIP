@@ -5,32 +5,36 @@ module EAst = EnvironmentAst
 
 
 (**
-  * Function for printing the type constraints of the program.
+  * To string functions.
   *)
 
-let rec pp_type_exp_variable (type_exp_var: T.type_exp_variable) =
+let rec type_exp_variable_to_string (type_exp_var: T.type_exp_variable): string =
   match type_exp_var with
-  | T.Alpha -> printf "alpha"
-  | T.Int -> printf "int"
-  | T.Expression exp -> printf "[["; (Astpp.pp_exp exp); printf "]]";
-  | T.Pointer type_exp_var' -> printf "&"; pp_type_exp_variable type_exp_var'
+  | T.Alpha uid -> "alpha(" ^ (string_of_int uid) ^ ")"
+  | T.Int -> "int"
+  | T.Expression exp -> "[[" ^ (Astpp.exp_to_string exp) ^ "]]";
+  | T.Pointer type_exp_var' -> "&" ^ (type_exp_variable_to_string type_exp_var')
   | T.Function (type_exp_vars, type_exp_var') ->
-    printf "(";
-    pp_type_exp_variables type_exp_vars;
-    printf ")->";
-    pp_type_exp_variable type_exp_var'
+    "(" ^ (type_exp_variables_to_string type_exp_vars) ^ ")->" ^ (type_exp_variable_to_string type_exp_var')
 
 and
 
-pp_type_exp_variables (type_exp_vars: T.type_exp_variable list) =
+type_exp_variables_to_string (type_exp_vars: T.type_exp_variable list): string =
   match type_exp_vars with
-  | [] -> ()
-  | type_exp_var :: [] -> pp_type_exp_variable type_exp_var
-  | type_exp_var :: type_exp_vars' ->
-    pp_type_exp_variable type_exp_var;
-    printf ", ";
-    pp_type_exp_variables type_exp_vars'
+  | [] -> ""
+  | type_exp_var :: [] -> type_exp_variable_to_string type_exp_var
+  | type_exp_var :: type_exp_vars' -> (type_exp_variable_to_string type_exp_var) ^ ", " ^ (type_exp_variables_to_string type_exp_vars')
 
+
+(**
+  * Function for printing the type constraints of the program.
+  *)
+
+let pp_type_exp_variable (type_exp_var: T.type_exp_variable) =
+  printf "%s" (type_exp_variable_to_string type_exp_var)
+
+let pp_type_exp_variables (type_exp_vars: T.type_exp_variable list) =
+  printf "%s" (type_exp_variables_to_string type_exp_vars)
 
 let pp_type_constraint ((type_exp_var1, type_exp_var2): T.type_constraint) =
   printf "  ";

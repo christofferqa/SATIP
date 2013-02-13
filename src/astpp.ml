@@ -7,6 +7,45 @@ open Ast
 
 
 (**
+  * To string functions.
+  *)
+
+let unop_to_string (unop: Ast.unop): string =
+  match unop with
+  | Pointer -> "&"
+  | Dereference -> "*"
+
+let binop_to_string (binop: Ast.binop): string =
+  match binop with
+  | Plus -> "+"
+  | Minus -> "-"
+  | Times -> "*"
+  | Divide -> "/"
+  | Gt -> ">"
+  | Eq -> "=="
+
+let rec exp_to_string (exp: Ast.exp): string =
+  match exp.exp with
+  | IntConst c -> c
+  | Identifier id -> Ast.i2s id
+  | Binop (exp1, binop, exp2) -> (exp_to_string exp1) ^ (binop_to_string binop) ^ (exp_to_string exp2)
+  | Unop (unop, exp') -> (unop_to_string unop) ^ (exp_to_string exp')
+  | Input -> "input"
+  | Malloc -> "malloc"
+  | Null -> "null"
+  | FunctionInvocation (id, exps) -> (Ast.i2s id) ^ "(" ^ (exps_to_string exps) ^ ")"
+  | PointerInvocation (exp', exps) -> "(" ^ (exp_to_string exp') ^ ")(" ^ (exps_to_string exps) ^ ")"
+
+and
+
+exps_to_string (exps: Ast.exp list): string =
+  match exps with
+  | [] -> ""
+  | exp :: [] -> exp_to_string exp
+  | exp :: exps' -> (exp_to_string exp) ^ ", " ^ (exps_to_string exps')
+
+
+(**
   * Misc.
   *)
 
@@ -24,67 +63,27 @@ let rec pp_identifiers (ids: Ast.identifier list) =
     pp_identifiers ids'
 
 let pp_binop (binop: Ast.binop) =
-  match binop with
-  | Plus -> printf "+"
-  | Minus -> printf "-"
-  | Times -> printf "*"
-  | Divide -> printf "/"
-  | Gt -> printf ">"
-  | Eq -> printf "=="
+  printf "%s" (binop_to_string binop)
 
 let pp_unop (unop: Ast.unop) =
-  match unop with
-  | Pointer -> printf "&"
-  | Dereference -> printf "*"
+  printf "%s" (unop_to_string unop)
 
 
 (**
   * Expressions
   *)
 
-let rec pp_exp (exp: Ast.exp) =
-  match exp.exp with
-  | IntConst c -> printf "%s" c
-  | Identifier id -> pp_identifier id
-  | Binop (exp1, binop, exp2) ->
-    pp_exp exp1;
-    pp_binop binop;
-    pp_exp exp2
-  | Unop (unop, exp') ->
-    pp_unop unop;
-    pp_exp exp'
-  | Input -> printf "input"
-  | Malloc -> printf "malloc"
-  | Null -> printf "null"
-  | FunctionInvocation (id, exps) ->
-    pp_identifier id;
-    printf "(";
-    pp_exps exps;
-    printf ")"
-  | PointerInvocation (exp', exps) ->
-    printf "(";
-    pp_exp exp';
-    printf ")";
-    printf "(";
-    pp_exps exps;
-    printf ")"
+let pp_exp (exp: Ast.exp) =
+  printf "%s" (exp_to_string exp)
 
-and
-
-pp_exps (exps: Ast.exp list) =
-  match exps with
-  | [] -> ()
-  | exp :: [] ->
-    pp_exp exp
-  | exp :: exps' ->
-    pp_exp exp;
-    printf ", ";
-    pp_exps exps'
+let pp_exps (exps: Ast.exp list) =
+  printf "%s" (exps_to_string exps)
 
 
 (**
   * Statements
   *)
+
 
 let rec pp_stm (stm: Ast.stm) (prefix: string) =
   match stm.stm with

@@ -9,7 +9,7 @@ let expressions_equal (exp1: Ast.exp) (exp2: Ast.exp): bool =
   exp1.Ast.exp = exp2.Ast.exp
 
 type type_exp_variable =
-  | Alpha
+  | Alpha of int (* uid to recognize other occurences of the same alpha *)
   | Int
   | Expression of Ast.exp
   | Pointer of type_exp_variable

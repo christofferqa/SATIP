@@ -22,10 +22,12 @@ let rec generate_type_constraints_from_exp (exp: EAst.exp) (constraints: T.type_
     (T.Expression exp, T.Int) :: constraints
     
   | Ast.Malloc -> (* [[malloc]] = &alpha *)
-    (T.Expression exp, T.Pointer T.Alpha) :: constraints
+    let uid = List.length constraints in
+    (T.Expression exp, T.Pointer (T.Alpha uid)) :: constraints
     
   | Ast.Null -> (* [[null]] == &alpha *)
-    (T.Expression exp, T.Pointer T.Alpha) :: constraints
+    let uid = List.length constraints in
+    (T.Expression exp, T.Pointer (T.Alpha uid)) :: constraints
     
   | Ast.Identifier id -> (* no constraints *)
     constraints
@@ -38,7 +40,6 @@ let rec generate_type_constraints_from_exp (exp: EAst.exp) (constraints: T.type_
   | Ast.Unop (unop, exp') ->
     (match unop, exp'.Ast.exp with
      | Ast.Dereference, _ -> (* [[E]] = &[[*E]] *)
-       printf "In a dereference: "; Astpp.pp_exp exp'; print_newline();
        (T.Expression exp', T.Pointer (T.Expression exp)) :: constraints
       
      | Ast.Pointer, Ast.Identifier id -> (* [[&id]] = &[[id]] *)
@@ -49,9 +50,9 @@ let rec generate_type_constraints_from_exp (exp: EAst.exp) (constraints: T.type_
     let constraints = generate_type_constraints_from_exps exps constraints in
     (T.Expression (Ast.i2exp id), T.Function (T.type_exp_variable_list_from_exps exps, T.Expression exp)) :: constraints
     
-  | Ast.PointerInvocation (exp, exps) ->
+  | Ast.PointerInvocation (exp', exps) ->
     let constraints = generate_type_constraints_from_exps exps constraints in
-    (T.Expression exp, T.Function (T.type_exp_variable_list_from_exps exps, T.Expression exp)) :: constraints
+    (T.Expression exp', T.Function (T.type_exp_variable_list_from_exps exps, T.Expression exp)) :: constraints
 
 and
 
