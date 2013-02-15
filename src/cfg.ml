@@ -24,6 +24,7 @@ end
 
 module NodeSet = Set.Make(NodeOrder)
 module NodeMap = Map.Make(NodeOrder)
+type transition_function = NodeSet.t NodeMap.t
 
 type cfg = 
   {  entry_point : node;
@@ -35,6 +36,10 @@ type cfg =
 (**
   * Helper functions
   *)
+
+let cons e l = e::l
+
+
 
 (* node type predicates *)
 let is_empty_node node =
@@ -207,13 +212,45 @@ let get_nodes g =
   *  Optimizations
   *)
 
+let remove_pred g node = 
+  (fun node -> ( is_empty_node node ) &&
+               ( NodeSet.cardinal (g.pred node) > 0 ) &&
+               ( NodeSet.cardinal (g.succ node) > 0 ))
 
-    
+(* Computes the set of reachable nodes, when you only follow the edge when p holds*)
+let rec reachable_when (node : node) (p : node -> bool) (trans_func : node -> NodeSet.t)  : NodeSet.t =
+  NodeSet.fold
+    (fun node set -> 
+      if not (p node)
+      then NodeSet.add node set
+      else NodeSet.union set (reachable_when node p trans_func))
+    NodeSet.empty
+    (trans_func node)
+
+let condense_transition_function_to_map trans_func keep_nodes = 
+  List.fold_left
+    (fun map node -> 
+      let neighbours = reachable_when node remove_pred f in
+      NodeMap.add node neighbours map)
+    nodes
+    transition_function.empty
+      
+let condense_graph g =
+  let all_nodes = fold_topdown cons [] g in 
+  let keep = List.filter (fun n -> not (remove_pred n)) all_nodes in
+  let pred' = condense_transition_function g.pred keep in
+  let succ' = condense_transition_function g.succ keep in
+  { entry_point = g.entry_point;
+    exit_point  = g.exit_point;
+    pred        = pred;
+    succ        = succ }
 
 (**
   *  Entry point 
   *)
 
+
+let nothing = ()
 
 let make_cfg (prog: Ast.program)  =
     ()
