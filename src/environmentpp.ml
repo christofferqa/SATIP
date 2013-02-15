@@ -1,5 +1,5 @@
 open Printf
-open Structures
+open EnvironmentStructures
 
 module EAst = EnvironmentAst
 

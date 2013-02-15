@@ -1,3 +1,5 @@
+open EnvironmentStructures
+
 (**
   * AST type produced by the parser.
   *)
@@ -38,7 +40,7 @@ and function_decl_desc
   = { function_name    : identifier;
       function_formals : identifier list;
       function_body    : stm list;
-      function_env     : Structures.env (* New *) }
+      function_env     : env (* New *) }
 
 
 (**

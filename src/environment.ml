@@ -1,3 +1,8 @@
+open Printf
+open EnvironmentStructures
+
+module EAst = EnvironmentAst
+
 (**
   * Compiler phase to build a map from names to AST nodes where these are declared.
   
@@ -7,11 +12,6 @@
   * - An identifier is declared more than once, or
   * - An identifier is used but not declared.
   *)
-
-open Printf
-open Structures
-
-module EAst = EnvironmentAst
 
 
 (**

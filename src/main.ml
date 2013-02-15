@@ -57,6 +57,7 @@ let compile filename =
   let ()   = apply TypeConstraintpp.pp_type_constraints tcc "pretty printing type constraints" in
   let tcs  = apply TypeConstraintSolver.solve_type_constraints tcc "solving type constraints" in
   let ()   = apply TypeConstraintpp.pp_type_constraints tcs "pretty printing solution to type constraints" in
+  let () = ClosureAnalysisConstraintGenerator.generate_closure_constraints in
   ()
 
 
