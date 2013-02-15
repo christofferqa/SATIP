@@ -209,7 +209,7 @@ let get_nodes g =
 (**
   *  Optimizations
   *)
-
+(*
 let remove_pred g node = 
   (fun node -> ( is_empty_node node ) &&
                ( NodeSet.cardinal (g.pred node) > 0 ) &&
@@ -242,7 +242,7 @@ let condense_graph g =
     exit_point  = g.exit_point;
     pred        = pred;
     succ        = succ }
-
+*)
 (**
   *  Entry point 
   *)
