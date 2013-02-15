@@ -2,8 +2,6 @@
   * A Control Flow Graph built from an AST.
   *)
 
-
-
 (**
   * Type declarations
   *)
