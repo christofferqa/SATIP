@@ -20,14 +20,22 @@ sig
   type node = int * c
 
   val make_node : c -> node
+  val get_node_content : node -> c
 
   val empty : t
   val add : node -> t -> t
+  val add_many : node list -> t -> t
+  val remove : node -> t -> t
+  val remove_many : node list -> t -> t
   val connect : node -> node -> t -> t
+  val connect_many : node list -> node list -> t -> t
+  val combine : t -> t -> t
 
+  val select_nodes : (node -> bool) -> t -> node list
 
   val succ : node -> t -> node list
   val pred : node -> t -> node list
+
   val pp : t -> unit
 end
 
@@ -95,11 +103,13 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
 
   (* Node creation / interfacing *)
   let make_node content = (0, content)    
-  let get_content (_, content) = content 
+  let get_node_content (_, content) = content 
 
   (* Graph properties *)
   let size graph = NodeSet.cardinal graph.nodes
   let mem node graph = NodeSet.mem node graph.nodes
+  let select_nodes pred graph = 
+    NodeSet.fold (fun n l -> if (pred n) then n::l else l) graph.nodes []
 
   (* Graph traversing *)
   let succ node graph = lookup node graph.succ
@@ -108,6 +118,9 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
   (* Graph manipulation *)
   let add node graph = 
     { graph with nodes = (NodeSet.add node graph.nodes) }
+
+  let add_many nodes graph =
+    List.fold_left (fun g n -> add n g) graph nodes
 
   let remove node graph = 
     (* list of nodes pointing to 'node' *)
@@ -120,6 +133,9 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
     { nodes = nodes';
       succ  = (NodeMap.remove node succ');
       pred  = (NodeMap.remove node pred') }
+
+  let remove_many nodes graph = 
+    List.fold_left (fun g n -> remove n g) graph nodes
       
   let connect a b graph = 
     if (not (mem a graph)) ||
@@ -131,6 +147,18 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
     { nodes = graph.nodes;
       succ  = succ';
       pred  = pred' }
+
+  let connect_many a_list b_list graph =
+    List.fold_left 
+      (fun graph' a -> 
+	List.fold_left
+	  (fun graph'' b -> connect a b graph'')
+	  graph'
+	  b_list)
+      graph 
+      a_list
+      
+  let combine g1 g2 = g1
 
   let pp graph =
     let indent = "   " in
