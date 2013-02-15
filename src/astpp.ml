@@ -49,18 +49,20 @@ exps_to_string (exps: Ast.exp list): string =
   * Misc.
   *)
 
+let identifier_to_string (id: Ast.identifier) =
+  id.Ast.identifier
+
+let rec identifiers_to_string (ids: Ast.identifier list): string =
+  match ids with
+  | [] -> ""
+  | id :: [] -> identifier_to_string id
+  | id :: ids' -> identifier_to_string id ^ ", " ^ (identifiers_to_string ids')
+
 let pp_identifier (id: Ast.identifier) =
   printf "%s" id.Ast.identifier
 
-let rec pp_identifiers (ids: Ast.identifier list) =
-  match ids with
-  | [] -> ()
-  | id :: [] ->
-    pp_identifier id
-  | id :: ids' ->
-    pp_identifier id;
-    printf ", ";
-    pp_identifiers ids'
+let pp_identifiers (ids: Ast.identifier list) =
+  printf "%s" (identifiers_to_string ids)
 
 let pp_binop (binop: Ast.binop) =
   printf "%s" (binop_to_string binop)
