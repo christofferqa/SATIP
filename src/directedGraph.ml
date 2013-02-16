@@ -35,6 +35,8 @@ sig
 
   val succ : node -> t -> node list
   val pred : node -> t -> node list
+    
+  val find_cycles : t -> node list list
 
   val pp : t -> unit
 end
@@ -184,6 +186,57 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
     { nodes = nodes';
       succ  = succ';
       pred  = pred' }
+      
+
+  (* Finds all cycles using Tarjan's algorithm O(V + E) *)
+  let find_cycles graph =
+    let index = ref 0 in
+    let node_indexs = ref NodeMap.empty in
+    let node_low_links = ref NodeMap.empty in
+    let stack = ref [] in
+    let sscs = ref [] in
+    let rec remove_until l pred =
+      match l with
+      | [] -> [], []
+      | e::l' ->
+	if pred e
+	then [e],l'
+	else
+	  let a,b = remove_until l' pred in
+	  (e::a),b in
+   
+    let rec strong_connect v =
+      let _ = node_indexs := NodeMap.add v !index !node_indexs in
+      let _ = node_low_links := NodeMap.add v !index !node_low_links in
+      let _ = index := !index + 1 in
+      let _ = stack := v::(!stack) in
+      let _ = List.iter 
+	        (fun w -> 
+		  if not (NodeMap.mem w !node_indexs)
+		  then 
+		    let _ = strong_connect w in
+		    node_low_links := NodeMap.add v (min (NodeMap.find v !node_low_links)
+						         (NodeMap.find w !node_low_links)) !node_low_links
+		  else
+		    node_low_links := NodeMap.add v (min (NodeMap.find v !node_low_links)
+			                    		 (NodeMap.find w !node_indexs)) !node_low_links)
+		(succ v graph) in
+      if (NodeMap.find v !node_low_links) <> (NodeMap.find v !node_indexs)
+      then ()
+      else 
+	let ssc,s' = remove_until !stack ((==) v) in
+	let _ = stack := s' in
+	sscs := ssc::(!sscs)
+
+    in
+    let _ = 
+      NodeSet.iter 
+	(fun v -> 
+	  if NodeMap.mem v !node_indexs
+	  then () 
+	  else strong_connect v) 
+	graph.nodes in
+    !sscs
 
   let pp graph =
     let indent = "   " in
@@ -194,5 +247,4 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
       Printf.printf "}\n";
     end
 end
-
 

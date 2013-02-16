@@ -27,6 +27,8 @@ sig
   val succ : node -> t -> node list
   val pred : node -> t -> node list
 
+  val find_cycles : t -> node list list
+
   val pp : t -> unit
 end
 
