@@ -5,7 +5,7 @@
 module type T = 
   sig
     type t
-    val pp : int * t -> string
+    val pp : t -> string
   end
 
 
@@ -74,6 +74,13 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
 (**
   * Helper functions - not in the interface
   *)
+  let make_id =
+    let count = ref 0 in
+    fun () -> let id  = !count in
+	      begin 
+		count := !count + 1;
+		id
+	      end
 
   (* map lookup with [] on failure *)
   let lookup k m = try NodeMap.find k m with Not_found -> []
@@ -102,7 +109,9 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
   *)
 
   (* Node creation / interfacing *)
-  let make_node content = (0, content)    
+  let make_node content = 
+    let id = make_id () in (id, content)
+
   let get_node_content (_, content) = content 
 
   (* Graph properties *)
@@ -158,21 +167,32 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
       graph 
       a_list
       
-  let combine g1 g2 = g1
+  let combine g1 g2 = 
+    let nodes' = NodeSet.union g1.nodes g2.nodes in 
+    let succ' = 
+      NodeSet.fold 
+	(fun k map -> 
+	  let v = (lookup k g1.succ)@(lookup k g2.succ) in
+	  NodeMap.add k v map)
+	nodes' NodeMap.empty in
+    let pred' = 
+      NodeSet.fold 
+	(fun k map -> 
+	  let v = (lookup k g1.pred)@(lookup k g2.pred) in
+	  NodeMap.add k v map)
+	nodes' NodeMap.empty in
+    { nodes = nodes';
+      succ  = succ';
+      pred  = pred' }
 
   let pp graph =
     let indent = "   " in
-    let () = Printf.printf "digraph G {\n" in
-    let () = 
-      NodeMap.iter 
-	(fun from_node v ->
-	  List.iter
-	    (fun to_node -> Printf.printf "%s%s -> %s;\n" indent (Type.pp from_node) (Type.pp to_node))
-	    v)
-	graph.succ in
-    let () = Printf.printf "}"
-    in 
-    ()
+    begin
+      Printf.printf "\ndigraph G {\n";
+      NodeSet.iter (fun (id,content) -> Printf.printf "%snode%d [label=\"%s\"]\n" indent id (Type.pp content)) graph.nodes;
+      NodeMap.iter (fun (id_a, _) v -> List.iter (fun (id_b, _) -> Printf.printf "%snode%d -> node%d;\n" indent id_a id_b) v) graph.succ;
+      Printf.printf "}\n";
+    end
 end
 
 

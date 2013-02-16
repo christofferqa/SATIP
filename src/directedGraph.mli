@@ -1,7 +1,7 @@
 module type T =
   sig
     type t
-    val pp : int * t -> string
+    val pp : t -> string
   end
 
 module type Graph =
