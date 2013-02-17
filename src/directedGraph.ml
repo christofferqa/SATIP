@@ -189,7 +189,7 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
       
 
   (* Finds all cycles using Tarjan's algorithm O(V + E) *)
-  let find_cycles graph =
+  let find_strongly_connected_components graph =
     let index = ref 0 in
     let node_indexs = ref NodeMap.empty in
     let node_low_links = ref NodeMap.empty in
@@ -237,6 +237,12 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
 	  else strong_connect v) 
 	graph.nodes in
     !sscs
+
+
+  let find_cycles graph =
+    List.filter 
+      (fun l -> (List.length l) > 1) 
+      (find_strongly_connected_components graph)
 
   let pp graph =
     let indent = "   " in
