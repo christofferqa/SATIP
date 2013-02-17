@@ -51,6 +51,7 @@ let compile filename =
   let ()   = print_newline() in
   let prog = apply parse_file filename "parsing" in
   let ()   = apply Astpp.pp_program prog "ast pretty printing" in
+  (* let wast = apply Weeding.weed_program prog "weeding" in *)
   let east = apply Environment.env_program prog "building environment" in
   let ()   = apply Environmentpp.pp_env east "pretty printing environment" in
   let tc   = apply TypeConstraintGenerator.generate_type_constraints east "generating type constraints" in
@@ -58,7 +59,7 @@ let compile filename =
   let tcs  = apply TypeConstraintSolver.solve_type_constraints tc "solving type constraints" in
   let ()   = apply TypeConstraintpp.pp_type_constraints tcs "pretty printing solution to type constraints" in
   let cc   = apply ClosureAnalysisConstraintGenerator.generate_closure_constraints east "generating closure constraints" in
-  let ()   = apply ClosureAnalysisConstraintpp.pp_closure_constraints cc "pretty printing closure constraints" in
+  let ()   = apply Cubicpp.pp_cubic_instance cc "pretty printing closure constraints" in
   let ccs  = apply ClosureAnalysisConstraintSolver.solve_closure_constraints cc "solving closure constraints" in
   ()
 

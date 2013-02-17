@@ -1,18 +1,13 @@
+let rec var_mem (var: Cubic.variable) (vars: Cubic.variable list) =
+  match vars with
+  | [] -> false
+  | var' :: vars' -> if var.Ast.exp_id = var'.Ast.exp_id then true else var_mem var vars'
+
 let rec add_var_if_not_mem (var: Cubic.variable) (vars: Cubic.variable list) =
-  let rec id_mem = (fun (id: Ast.identifier) (vars: Cubic.variable list) ->
-    match vars with
-    | [] -> false
-    | { Ast.exp = Ast.Identifier id'; Ast.exp_pos = _ } :: vars' -> if Ast.i2s id = Ast.i2s id' then true else id_mem id vars'
-    | var :: vars' -> id_mem id vars')
-    in
-  match var.Ast.exp with
-  | Ast.Identifier id -> if id_mem id vars then vars else var :: vars
-  | _ -> if List.mem var vars then vars else var :: vars
+  if var_mem var vars then vars else var :: vars
 
 let add_vars_if_not_mem vars vars' =
-  List.fold_right (fun var acc ->
-    add_var_if_not_mem var acc
-  ) vars vars'
+  List.fold_right (fun var acc -> add_var_if_not_mem var acc) vars vars'
 
 open Printf
 
@@ -89,13 +84,14 @@ let rec generate_constraints_stm (stm: Ast.stm) (funcs: EAst.function_decl list)
   | Ast.IfThen (exp, stms) -> generate_constraints_exp exp funcs (generate_constraints_stms stms funcs instance)
   | Ast.PointerAssignment (exp1, exp2) -> generate_constraints_exp exp1 funcs (generate_constraints_exp exp2 funcs instance) (* TODO: Should we handle this case as VarAssignment? *)
   | Ast.IfThenElse (exp, stms1, stms2) -> generate_constraints_exp exp funcs (generate_constraints_stms stms1 funcs (generate_constraints_stms stms2 funcs instance))
-  | Ast.VarAssignment (identifier, exp) ->
+  | Ast.VarAssignment (id, exp) ->
     let instance = generate_constraints_exp exp funcs instance in
+    
     { instance with
       (* identifier and exp are variables (see next comment): *)
-      Cubic.variables = add_vars_if_not_mem (Ast.i2exp identifier :: exp :: []) instance.Cubic.variables;
+      Cubic.variables = add_vars_if_not_mem (Ast.i2exp id :: exp :: []) instance.Cubic.variables;
       (* For assignments id=E we have the constraint: [[E]] subset [[id]]: *)
-      Cubic.constraints = Cubic.VarInclusion (exp, Ast.i2exp identifier) :: instance.Cubic.constraints }
+      Cubic.constraints = Cubic.VarInclusion (exp, Ast.i2exp id) :: instance.Cubic.constraints }
 
 and
 
@@ -114,12 +110,15 @@ let generate_closure_constraints (prog: EAst.program): Cubic.instance =
   List.fold_right (fun (func: EAst.function_decl) (acc: Cubic.instance) ->
     let function_name = func.EAst.function_decl.EAst.function_name in
     
+    let var_function_name = Ast.i2exp function_name in
+    
     let acc = {
       (* The function name is both a token and a variable (see next comment): *)
       Cubic.tokens = function_name :: acc.Cubic.tokens;
-      Cubic.variables = add_var_if_not_mem (Ast.i2exp function_name) acc.Cubic.variables;
+      Cubic.variables = add_var_if_not_mem var_function_name acc.Cubic.variables;
+      
       (* For a constant function name id we have the constraint: {&id} subset [[id]]: *)
-      Cubic.constraints = Cubic.TokenInclusion (function_name :: [], Ast.i2exp function_name) :: acc.Cubic.constraints } in
+      Cubic.constraints = Cubic.TokenInclusion (function_name :: [], var_function_name) :: acc.Cubic.constraints } in
     
     (* Check statements for further constraints: *)
     generate_constraints_stms func.EAst.function_decl.EAst.function_body prog.EAst.program_decl acc

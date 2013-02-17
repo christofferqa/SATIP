@@ -2,7 +2,7 @@
   * AST type produced by the parser.
   *)
 
-type identifier = { identifier_pos : Lexing.position; identifier : string }
+type identifier = { identifier_pos : Lexing.position; identifier : string; identifier_id: int }
 
 (**
   * Operators
@@ -25,7 +25,7 @@ type unop =
   * Expressions
   *)
 
-type exp = { exp_pos: Lexing.position; exp: exp_desc }
+type exp = { exp_pos: Lexing.position; exp: exp_desc; exp_id: int }
 and exp_desc =
   | IntConst of string
   | Identifier of identifier
@@ -42,7 +42,7 @@ and exp_desc =
   * Statements
   *)
 
-type stm = { stm_pos: Lexing.position; stm: stm_desc }
+type stm = { stm_pos: Lexing.position; stm: stm_desc; stm_id: int }
 and stm_desc =
   | VarAssignment of identifier * exp
   | PointerAssignment of exp * exp
@@ -82,7 +82,7 @@ type program
 let i2p (id: identifier): Lexing.position = id.identifier_pos
 let i2s (id: identifier): string = id.identifier
 
-let i2exp (id: identifier): exp = { exp_pos = (i2p id); exp = (Identifier id) }
+let i2exp (id: identifier): exp = { exp_pos = (i2p id); exp = Identifier id; exp_id = id.identifier_id }
 
 let is_identical_identifiers (exp1: exp) (exp2: exp): bool =
   match exp1.exp, exp2.exp with
