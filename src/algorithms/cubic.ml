@@ -26,15 +26,13 @@ type solution = (variable * token list) list
 
 module IntegerMap = Map.Make(struct type t = int let compare = compare end)
 
+type bitvector_assoc = ((variable * variable) list) IntegerMap.t
 type bitvector = (bool list) * bitvector_assoc
-and bitvector_assoc = ((variable * variable) list) IntegerMap.t
+
 
 module NodeType = struct
-  type t = (variable * bitvector) option
-  let pp = (fun nc ->
-              match nc with
-              | Some (var, vector) -> Astpp.exp_to_string var
-              | None -> Error.phase "Cubic" "Internal error. Did not expect any empty nodes.")
+  type t = (variable * bitvector)
+  let pp =  fun (var, vector) -> Astpp.exp_to_string var
 end
 
 type var_to_node_map = (int * NodeType.t) IntegerMap.t
@@ -68,7 +66,7 @@ let solve_instance (instance: instance): solution =
   (* Add a node for each variable to the graph, and a mapping from the variable's id to its associated node in the graph: *)
   let (graph, map) =
     List.fold_left (fun ((graph, map): Graph.t * var_to_node_map) (var: variable) ->
-      let node = Graph.make_node (Some (var, initial_bitvector)) in
+      let node = Graph.make_node (var, initial_bitvector) in
       (Graph.add node graph, IntegerMap.add var.Ast.exp_id node map)
     ) (Graph.empty, IntegerMap.empty) instance.variables
     in
