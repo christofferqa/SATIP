@@ -8,7 +8,7 @@ module type Graph =
 sig
   type t
   type c
-  type node = int * c
+  type node
 
   val make_node : c -> node
   val get_node_content : node -> c

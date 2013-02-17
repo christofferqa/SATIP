@@ -35,10 +35,9 @@ module NodeType = struct
   let pp =  fun (var, vector) -> Astpp.exp_to_string var
 end
 
-type var_to_node_map = (int * NodeType.t) IntegerMap.t
-
 module Graph = DirectedGraph.Make(NodeType)
 
+type var_to_node_map = Graph.node IntegerMap.t
 
 (**
   * Solution:
@@ -85,6 +84,7 @@ let solve_instance (instance: instance): solution =
       | ConditionalInclusion(token, var1, var2, var3) ->
         (* This constraint is handled by first testing if the bit corresponding to token in the
            node corresponding to var1 is 1. If this i so, then an edge between var2 and var3 is added.
+
            Otherwise the pair (y,z) is added to the list for that bit. *)
         (graph, map)
     ) (graph, map) instance.constraints
