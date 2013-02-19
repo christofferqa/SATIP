@@ -43,18 +43,18 @@ type var_to_node_map = Graph.node IntegerMap.t
 (* Getters: *)
 
 let get_entries (var: variable) (nodes: var_to_node_map): int_to_entry_map =
-  let (_, (var, entries)) = IntegerMap.find var.Ast.exp_id nodes in
+  let (var, entries) = Graph.get_node_content (IntegerMap.find var.Ast.exp_id nodes) in
   entries
 
-let get_entry (var: variable) (token: token) (nodes: var_to_node_map): entry =
+let get_entry (var: variable) (tokenid: int) (nodes: var_to_node_map): entry =
   let entries = get_entries var nodes in
-  IntegerMap.find token.Ast.identifier_id entries
+  IntegerMap.find tokenid entries
 
 (* Setters: *)
 
-let add_pair_to_entry (var: variable) (token: token) (pair: variable * variable) (nodes: var_to_node_map) =
-  let entry = get_entry var token nodes in
-  entry.pairs := pair :: !entry.pairs
+let add_pair_to_entry (var: variable) (tokenid: int) (pair: variable * variable) (nodes: var_to_node_map) =
+  let entry = get_entry var tokenid nodes in
+  entry.pairs := pair :: !(entry.pairs)
 
 
 (**
@@ -74,21 +74,29 @@ let init_graph (instance: instance): Graph.t * var_to_node_map =
     (Graph.add node graph, IntegerMap.add var.Ast.exp_id node nodes)
   ) (Graph.empty, IntegerMap.empty) instance.variables  
 
-let handle_token_inclusion (graph: Graph.t) (nodes: var_to_node_map) (token: token) (var: variable): Graph.t * var_to_node_map =
+let handle_token_inclusion (graph: Graph.t) (nodes: var_to_node_map) (tokenid: int) (var: variable): Graph.t * var_to_node_map =
   (* Lookup the entry associated with token *)
-  let entry = get_entry var token nodes in
+  let entry = get_entry var tokenid nodes in
   
   (* Set the bit corresponding to token to 1 *)
-  entry := true;
+  entry.bit := true;
   
   (* Add edges corresponding to the associated list *)
-  let pairs = !entry.pairs in
-  List.fold_left (fun ((graph, nodes): Graph.t * var_to_node_map) ((var1, var2): variable * variable) ->
-    let var1_node = IntegerMap.find var1.Ast.exp_id nodes in
-    let var2_node = IntegerMap.find var2.Ast.exp_id nodes in
-    let graph = Graph.connect var1_node var2_node graph in
-    (graph, nodes)
-  ) (graph, nodes) pairs
+  let pairs = !(entry.pairs) in
+  List.fold_left
+    (fun ((graph, nodes): Graph.t * var_to_node_map) ((var1, var2): variable * variable) ->
+      let var1_node = IntegerMap.find var1.Ast.exp_id nodes in
+      let var2_node = IntegerMap.find var2.Ast.exp_id nodes in
+      let graph = Graph.connect var1_node var2_node graph in
+      (* TODO: Propagate the values of the var1_node entries to the var2_node entries *)
+      (graph, nodes))
+    (graph, nodes) pairs
+
+let handle_token_inclusions (var: variable) (tokenids: int list) (graph: Graph.t) (nodes: var_to_node_map): Graph.t * var_to_node_map =
+  List.fold_left
+    (fun ((graph, nodes): Graph.t * var_to_node_map) (tokenid: int) ->
+      handle_token_inclusion graph nodes tokenid var)
+    (graph, nodes) tokenids
 
 (* Solves an instance of the cubic algorithm *)
 let solve_instance (instance: instance): solution =
@@ -101,13 +109,20 @@ let solve_instance (instance: instance): solution =
         (* Look up the node associated with var, and set the corresponding bit to 1.
            If its list of pairs is not empty, then an edge between the nodes corresponding to
            y and z is added for every pair (y,z). *)
-        List.fold_left (fun ((graph, nodes): Graph.t * var_to_node_map) (token: token) ->
-          handle_token_inclusion graph nodes token var
-        ) (graph, nodes) tokens
+        let tokenids = (List.fold_left (fun tokenids token -> token.Ast.identifier_id :: tokenids) [] tokens) in
+        handle_token_inclusions var tokenids graph nodes
         
       | VarInclusion (var1, var2) ->
         (* Is handled as TokenInclusion (each token that is in the closure of var1 is added to var2). *)
-        (graph, nodes)
+        let entries = get_entries var1 nodes in
+        let tokens =
+          IntegerMap.fold
+            (fun (tokenid: int) (entry: entry) (tokenids: int list) ->
+              if !(entry.bit)
+              then tokenid :: tokenids
+              else tokenids)
+            entries [] in
+        handle_token_inclusions var2 tokens graph nodes
         
       | ConditionalInclusion(token, var1, var2, var3) ->
         (* This constraint is handled by first testing if the bit corresponding to token in the
