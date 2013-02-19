@@ -43,6 +43,8 @@ let get_sources g = ControlFlowGraph.select_nodes (source_pred g) g
 let get_sinks g = ControlFlowGraph.select_nodes (sink_pred g) g
 let get_empty g = ControlFlowGraph.select_nodes (empty_pred g) g
 
+let (|>) x f = f x
+
 (**
   * A function to build a control flow graph from a program.
   * The returned node is the root-element of the CFG.
@@ -67,9 +69,9 @@ let rec generate_cfg_of_single_stm stm =
     let stm_cfg_sinks = get_sinks stm_cfg in	
     let stm_cfg_sources = get_sources stm_cfg in
 
-    let cfg = ControlFlowGraph.add_many [branch_node; exit_node] stm_cfg in
-    let cfg = ControlFlowGraph.connect_many [branch_node] (exit_node::stm_cfg_sources) cfg in
-    ControlFlowGraph.connect_many stm_cfg_sinks [exit_node] cfg
+    ControlFlowGraph.add_many [branch_node; exit_node] stm_cfg |>
+    ControlFlowGraph.connect_many [branch_node] (exit_node::stm_cfg_sources) |>
+    ControlFlowGraph.connect_many stm_cfg_sinks [exit_node] 
 
   | Ast.IfThenElse (e, block1, block2) ->
     (* Recursively create graphs for the stms and combine them to one graph obj (will have 2 sources and 2 sinks) *)
@@ -83,13 +85,10 @@ let rec generate_cfg_of_single_stm stm =
     let cfg_sinks   = get_sinks stms_cfg in	
     let cfg_sources = get_sources stms_cfg in
 
-    (* add the two new nodes *)
-    let cfg = ControlFlowGraph.add branch_node stms_cfg in
-    let cfg = ControlFlowGraph.add exit_node cfg in
-
-    (* connect branch to sources and sinks to exit_node *)
-    let cfg = ControlFlowGraph.connect_many [branch_node] cfg_sources cfg in
-    ControlFlowGraph.connect_many cfg_sinks [exit_node] cfg
+    ControlFlowGraph.add branch_node stms_cfg |>
+    ControlFlowGraph.add exit_node |>
+    ControlFlowGraph.connect_many [branch_node] cfg_sources |>
+    ControlFlowGraph.connect_many cfg_sinks [exit_node]
 
   | Ast.While (e, block) ->
     (* graph 'nodes' *)
@@ -101,12 +100,10 @@ let rec generate_cfg_of_single_stm stm =
     let stm_cfg_sinks = get_sinks stm_cfg in	
     let stm_cfg_sources = get_sources stm_cfg in
 
-    let cfg = ControlFlowGraph.add_many [branch_node; entry_node; exit_node] stm_cfg in
-
-    let cfg = ControlFlowGraph.connect entry_node branch_node cfg in
-    let cfg = ControlFlowGraph.connect_many [branch_node] (exit_node::stm_cfg_sources) cfg in
-    let cfg = ControlFlowGraph.connect_many stm_cfg_sinks [branch_node] cfg in
-    cfg
+    ControlFlowGraph.add_many [branch_node; entry_node; exit_node] stm_cfg |>
+    ControlFlowGraph.connect entry_node branch_node |>
+    ControlFlowGraph.connect_many [branch_node] (exit_node::stm_cfg_sources) |>
+    ControlFlowGraph.connect_many stm_cfg_sinks [branch_node] 
 
 and generate_cfg_of_block_stm stms =
   List.fold_left

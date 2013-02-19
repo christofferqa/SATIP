@@ -17,7 +17,7 @@ module type Graph =
 sig
   type t
   type c
-  type node = int * c
+  type node
 
   val make_node : c -> node
   val get_node_content : node -> c
@@ -79,10 +79,10 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
   let make_id =
     let count = ref 0 in
     fun () -> let id  = !count in
-	      begin 
-		count := !count + 1;
-		id
-	      end
+              begin 
+                count := !count + 1;
+                id
+              end
 
   (* map lookup with [] on failure *)
   let lookup k m = try NodeMap.find k m with Not_found -> []
@@ -91,19 +91,19 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
   let remove_node_from_bindings node map keys =
     List.fold_left
       (fun map' k -> 
-	(* filter out 'node' *)
-	let v' = List.filter ((!=) node) (lookup k map') in  
-	NodeMap.add k v' map')
+        (* filter out 'node' *)
+        let v' = List.filter ((!=) node) (lookup k map') in  
+        NodeMap.add k v' map')
       map keys 
 
   (* returns a new map: forall k,v pairs in map, where k in 'keys', 'node' IS in v *)
   let add_node_to_bindings node map keys =
     List.fold_left
       (fun map' k -> 
-	let v = lookup k map in
-	if List.mem node v
-	then map'
-	else NodeMap.add k (node::v) map')
+        let v = lookup k map in
+        if List.mem node v
+        then map'
+        else NodeMap.add k (node::v) map')
       map keys 
       
 (**
@@ -162,10 +162,10 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
   let connect_many a_list b_list graph =
     List.fold_left 
       (fun graph' a -> 
-	List.fold_left
-	  (fun graph'' b -> connect a b graph'')
-	  graph'
-	  b_list)
+        List.fold_left
+          (fun graph'' b -> connect a b graph'')
+          graph'
+          b_list)
       graph 
       a_list
       
@@ -173,23 +173,23 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
     let nodes' = NodeSet.union g1.nodes g2.nodes in 
     let succ' = 
       NodeSet.fold 
-	(fun k map -> 
-	  let v = (lookup k g1.succ)@(lookup k g2.succ) in
-	  NodeMap.add k v map)
-	nodes' NodeMap.empty in
+        (fun k map -> 
+          let v = (lookup k g1.succ)@(lookup k g2.succ) in
+          NodeMap.add k v map)
+        nodes' NodeMap.empty in
     let pred' = 
       NodeSet.fold 
-	(fun k map -> 
-	  let v = (lookup k g1.pred)@(lookup k g2.pred) in
-	  NodeMap.add k v map)
-	nodes' NodeMap.empty in
+        (fun k map -> 
+          let v = (lookup k g1.pred)@(lookup k g2.pred) in
+          NodeMap.add k v map)
+        nodes' NodeMap.empty in
     { nodes = nodes';
       succ  = succ';
       pred  = pred' }
       
 
   (* Finds all cycles using Tarjan's algorithm O(V + E) *)
-  let find_cycles graph =
+  let find_strongly_connected_components graph =
     let index = ref 0 in
     let node_indexs = ref NodeMap.empty in
     let node_low_links = ref NodeMap.empty in
@@ -199,11 +199,11 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
       match l with
       | [] -> [], []
       | e::l' ->
-	if pred e
-	then [e],l'
-	else
-	  let a,b = remove_until l' pred in
-	  (e::a),b in
+        if pred e
+        then [e],l'
+        else
+          let a,b = remove_until l' pred in
+          (e::a),b in
    
     let rec strong_connect v =
       let _ = node_indexs := NodeMap.add v !index !node_indexs in
@@ -211,32 +211,38 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
       let _ = index := !index + 1 in
       let _ = stack := v::(!stack) in
       let _ = List.iter 
-	        (fun w -> 
-		  if not (NodeMap.mem w !node_indexs)
-		  then 
-		    let _ = strong_connect w in
-		    node_low_links := NodeMap.add v (min (NodeMap.find v !node_low_links)
-						         (NodeMap.find w !node_low_links)) !node_low_links
-		  else
-		    node_low_links := NodeMap.add v (min (NodeMap.find v !node_low_links)
-			                    		 (NodeMap.find w !node_indexs)) !node_low_links)
-		(succ v graph) in
+                (fun w -> 
+                  if not (NodeMap.mem w !node_indexs)
+                  then 
+                    let _ = strong_connect w in
+                    node_low_links := NodeMap.add v (min (NodeMap.find v !node_low_links)
+                                                         (NodeMap.find w !node_low_links)) !node_low_links
+                  else
+                    node_low_links := NodeMap.add v (min (NodeMap.find v !node_low_links)
+                                                             (NodeMap.find w !node_indexs)) !node_low_links)
+                (succ v graph) in
       if (NodeMap.find v !node_low_links) <> (NodeMap.find v !node_indexs)
       then ()
       else 
-	let ssc,s' = remove_until !stack ((==) v) in
-	let _ = stack := s' in
-	sscs := ssc::(!sscs)
+        let ssc,s' = remove_until !stack ((==) v) in
+        let _ = stack := s' in
+        sscs := ssc::(!sscs)
 
     in
     let _ = 
       NodeSet.iter 
-	(fun v -> 
-	  if NodeMap.mem v !node_indexs
-	  then () 
-	  else strong_connect v) 
-	graph.nodes in
+        (fun v -> 
+          if NodeMap.mem v !node_indexs
+          then () 
+          else strong_connect v) 
+        graph.nodes in
     !sscs
+
+
+  let find_cycles graph =
+    List.filter 
+      (fun l -> (List.length l) > 1) 
+      (find_strongly_connected_components graph)
 
   let pp graph =
     let indent = "   " in
