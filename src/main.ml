@@ -61,6 +61,7 @@ let compile filename =
   let cc   = apply ClosureAnalysisConstraintGenerator.generate_closure_constraints east "generating closure constraints" in
   let ()   = apply Cubicpp.pp_cubic_instance cc "pretty printing closure constraints" in
   let ccs  = apply ClosureAnalysisConstraintSolver.solve_closure_constraints cc "solving closure constraints" in
+  let ()   = apply Cubicpp.pp_cubic_solution ccs "pretty printing solution to closure constraints" in
   ()
 
 
