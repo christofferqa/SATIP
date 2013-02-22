@@ -38,6 +38,8 @@ sig
     
   val find_cycles : t -> node list list
 
+  val fold : (c -> 'a -> 'a) -> 'a -> t -> 'a 
+
   val pp : t -> unit
 end
 
@@ -238,7 +240,6 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
         graph.nodes in
     !sscs
 
-
   let find_cycles graph =
     List.filter 
       (fun l -> (List.length l) > 1) 
@@ -252,5 +253,8 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
       NodeMap.iter (fun (id_a, _) v -> List.iter (fun (id_b, _) -> Printf.printf "%snode%d -> node%d;\n" indent id_a id_b) v) graph.succ;
       Printf.printf "}\n";
     end
+
+  let fold f acc g =
+    NodeSet.fold (fun (_,c) -> f c) g.nodes acc 
 end
 
