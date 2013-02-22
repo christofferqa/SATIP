@@ -25,3 +25,14 @@ let pp_cubic_instance (instance: Cubic.instance) =
   List.iter (fun (incl_constraint: Cubic.incl_constraint) ->
     printf "  "; pp_cubic_constraint incl_constraint; print_newline()
   ) instance.Cubic.constraints
+
+let pp_cubic_solution (solution: Cubic.solution) =
+  List.iter
+    (fun ((var, tokens): (Cubic.variable * Cubic.token list)) ->
+      printf "  [[";
+      Astpp.pp_exp var;
+      printf "]] = {";
+      Astpp.pp_identifiers tokens;
+      printf "}";
+      print_newline())
+    solution
