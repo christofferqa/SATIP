@@ -29,6 +29,8 @@ sig
 
   val find_cycles : t -> node list list
 
+  val fold : (c -> 'a -> 'a) -> 'a -> t -> 'a 
+
   val pp : t -> unit
 end
 
