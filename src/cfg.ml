@@ -115,4 +115,3 @@ and generate_cfg_of_block_stm stms =
       ControlFlowGraph.connect_many acc_cfg_sinks stm_cfg_sources cfg')
     ControlFlowGraph.empty
     stms
-
