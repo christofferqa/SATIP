@@ -1,17 +1,8 @@
-(**
-  *  Module wrapping the type of node content
-  *)
-
 module type T = 
   sig
     type t
     val pp : t -> string
   end
-
-
-(**
-  * Signature for the graph module
-  *)
     
 module type Graph =
 sig
@@ -21,7 +12,7 @@ sig
 
   val make_node : c -> node
   val get_node_content : node -> c
-
+  val get_node_id : node -> int
   val empty : t
   val add : node -> t -> t
   val add_many : node list -> t -> t
@@ -30,23 +21,13 @@ sig
   val connect : node -> node -> t -> t
   val connect_many : node list -> node list -> t -> t
   val combine : t -> t -> t
-
   val select_nodes : (node -> bool) -> t -> node list
-
   val succ : node -> t -> node list
   val pred : node -> t -> node list
-    
   val find_cycles : t -> node list list
-
-  val fold : (c -> 'a -> 'a) -> 'a -> t -> 'a 
-
+  val fold : (node -> 'a -> 'a) -> 'a -> t -> 'a 
   val pp : t -> unit
 end
-
-
-(**
-  * Graph functor 
-  *)
 
 module Make (Type : T) : (Graph with type c = Type.t) = struct
 
@@ -117,6 +98,7 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
     let id = make_id () in (id, content)
 
   let get_node_content (_, content) = content 
+  let get_node_id (id, _) = id
 
   (* Graph properties *)
   let size graph = NodeSet.cardinal graph.nodes
@@ -255,6 +237,6 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
     end
 
   let fold f acc g =
-    NodeSet.fold (fun (_,c) -> f c) g.nodes acc 
+    NodeSet.fold (fun n -> f n) g.nodes acc 
 end
 
