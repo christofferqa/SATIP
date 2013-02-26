@@ -116,21 +116,6 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
 
   let add_many nodes graph =
     List.fold_left (fun g n -> add n g) graph nodes
-
-  let remove node graph = 
-    (* list of nodes pointing to 'node' *)
-    let pred_nodes = pred node graph in 
-    (* list of nodes pointed-to from 'node' *)
-    let succ_nodes = succ node graph in 
-    let succ'  = remove_node_from_bindings node graph.succ pred_nodes in
-    let pred'  = remove_node_from_bindings node graph.pred succ_nodes in
-    let nodes' = NodeSet.remove node graph.nodes in
-    { nodes = nodes';
-      succ  = (NodeMap.remove node succ');
-      pred  = (NodeMap.remove node pred') }
-
-  let remove_many nodes graph = 
-    List.fold_left (fun g n -> remove n g) graph nodes
       
   let connect a b graph = 
     if (not (mem a graph)) ||
@@ -153,6 +138,25 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
       graph 
       a_list
       
+  let remove node graph = 
+    (* list of nodes pointing to 'node' *)
+    let pred_nodes = pred node graph in 
+    (* list of nodes pointed-to from 'node' *)
+    let succ_nodes = succ node graph in 
+    let succ'  = remove_node_from_bindings node graph.succ pred_nodes in
+    let pred'  = remove_node_from_bindings node graph.pred succ_nodes in
+    let nodes' = NodeSet.remove node graph.nodes in
+    connect_many 
+      pred_nodes 
+      succ_nodes 
+      { nodes = nodes';
+	succ  = (NodeMap.remove node succ');
+	pred  = (NodeMap.remove node pred') }
+
+  let remove_many nodes graph = 
+    List.fold_left (fun g n -> remove n g) graph nodes
+
+
   let combine g1 g2 = 
     let nodes' = NodeSet.union g1.nodes g2.nodes in 
     let succ' = 

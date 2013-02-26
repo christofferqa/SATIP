@@ -103,6 +103,7 @@ let rec naive lambda value =
 let liveness program = 
   let f = List.hd (program.Ast.program_decl) in
   let cfg = ControlFlowGraph.generate_cfg_from_function f in
+  let _ = CFG.pp cfg in
   let lambdas = 
     ControlFlowGraph.fold
       (fun n l -> make_lambda n cfg::l)

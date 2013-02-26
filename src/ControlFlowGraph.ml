@@ -104,9 +104,17 @@ let rec generate_cfg_of_single_stm stm =
     let cfg_sources = get_sources cfg in
     let entry_node = make_node Entry in
     let exit_node = make_node Exit in
+    let empty_nodes = select_nodes 
+      (fun n -> match (get_node_content n) with | Empty -> true | _ -> false)
+      cfg in
     add_many [entry_node; exit_node] cfg |>
     connect_many cfg_sinks [exit_node] |>
-    connect_many [entry_node] cfg_sources 
+    connect_many [entry_node] cfg_sources |>
+    remove_many empty_nodes
+	
+
+    
+    
 
 
 
