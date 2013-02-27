@@ -1,11 +1,3 @@
-(**
-  * A graph.
-  *)
-
-(**
-  * Type declarations
-  *)
-
 module type NodeType =
   sig
     type t

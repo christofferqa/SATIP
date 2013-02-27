@@ -1,17 +1,8 @@
-(**
-  *  Module wrapping the type of node content
-  *)
-
 module type T = 
   sig
     type t
     val pp : t -> string
   end
-
-
-(**
-  * Signature for the graph module
-  *)
     
 module type Graph =
 sig
@@ -21,7 +12,7 @@ sig
 
   val make_node : c -> node
   val get_node_content : node -> c
-
+  val get_node_id : node -> int
   val empty : t
   val add : node -> t -> t
   val add_many : node list -> t -> t
@@ -30,23 +21,13 @@ sig
   val connect : node -> node -> t -> t
   val connect_many : node list -> node list -> t -> t
   val combine : t -> t -> t
-
   val select_nodes : (node -> bool) -> t -> node list
-
   val succ : node -> t -> node list
   val pred : node -> t -> node list
-    
   val find_cycles : t -> node list list
-
-  val fold : (c -> 'a -> 'a) -> 'a -> t -> 'a 
-
+  val fold : (node -> 'a -> 'a) -> 'a -> t -> 'a 
   val pp : t -> unit
 end
-
-
-(**
-  * Graph functor 
-  *)
 
 module Make (Type : T) : (Graph with type c = Type.t) = struct
 
@@ -117,6 +98,7 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
     let id = make_id () in (id, content)
 
   let get_node_content (_, content) = content 
+  let get_node_id (id, _) = id
 
   (* Graph properties *)
   let size graph = NodeSet.cardinal graph.nodes
@@ -134,21 +116,6 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
 
   let add_many nodes graph =
     List.fold_left (fun g n -> add n g) graph nodes
-
-  let remove node graph = 
-    (* list of nodes pointing to 'node' *)
-    let pred_nodes = pred node graph in 
-    (* list of nodes pointed-to from 'node' *)
-    let succ_nodes = succ node graph in 
-    let succ'  = remove_node_from_bindings node graph.succ pred_nodes in
-    let pred'  = remove_node_from_bindings node graph.pred succ_nodes in
-    let nodes' = NodeSet.remove node graph.nodes in
-    { nodes = nodes';
-      succ  = (NodeMap.remove node succ');
-      pred  = (NodeMap.remove node pred') }
-
-  let remove_many nodes graph = 
-    List.fold_left (fun g n -> remove n g) graph nodes
       
   let connect a b graph = 
     if (not (mem a graph)) ||
@@ -171,6 +138,25 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
       graph 
       a_list
       
+  let remove node graph = 
+    (* list of nodes pointing to 'node' *)
+    let pred_nodes = pred node graph in 
+    (* list of nodes pointed-to from 'node' *)
+    let succ_nodes = succ node graph in 
+    let succ'  = remove_node_from_bindings node graph.succ pred_nodes in
+    let pred'  = remove_node_from_bindings node graph.pred succ_nodes in
+    let nodes' = NodeSet.remove node graph.nodes in
+    connect_many 
+      pred_nodes 
+      succ_nodes 
+      { nodes = nodes';
+	succ  = (NodeMap.remove node succ');
+	pred  = (NodeMap.remove node pred') }
+
+  let remove_many nodes graph = 
+    List.fold_left (fun g n -> remove n g) graph nodes
+
+
   let combine g1 g2 = 
     let nodes' = NodeSet.union g1.nodes g2.nodes in 
     let succ' = 
@@ -255,6 +241,6 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
     end
 
   let fold f acc g =
-    NodeSet.fold (fun (_,c) -> f c) g.nodes acc 
+    NodeSet.fold (fun n -> f n) g.nodes acc 
 end
 
