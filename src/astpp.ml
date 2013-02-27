@@ -10,6 +10,15 @@ open Ast
   * To string functions.
   *)
 
+let identifier_to_string (id: Ast.identifier) =
+  id.Ast.identifier
+
+let rec identifiers_to_string (ids: Ast.identifier list): string =
+  match ids with
+  | [] -> ""
+  | id :: [] -> identifier_to_string id
+  | id :: ids' -> identifier_to_string id ^ ", " ^ (identifiers_to_string ids')
+
 let unop_to_string (unop: Ast.unop): string =
   match unop with
   | Pointer -> "&"
@@ -44,19 +53,21 @@ exps_to_string (exps: Ast.exp list): string =
   | exp :: [] -> exp_to_string exp
   | exp :: exps' -> (exp_to_string exp) ^ ", " ^ (exps_to_string exps')
 
+let rec stm_to_string (stm: Ast.stm) =
+  match stm.stm with
+  | VarAssignment (id, exp) -> (identifier_to_string id) ^ " = " ^ (exp_to_string exp) ^ ";"
+  | PointerAssignment (exp1, exp2) -> (exp_to_string exp1) ^ " = " ^ (exp_to_string exp2) ^ ";"
+  | Output exp -> "output" ^ (exp_to_string exp)
+  | IfThen (exp, stms) -> "if (" ^ (exp_to_string exp) ^ ") { ... }"
+  | IfThenElse (exp, stms1, stms2) -> "if (" ^ (exp_to_string exp) ^ ") { ... } else { ... }"
+  | While (exp, stms) -> "while (" ^ (exp_to_string exp) ^ ") { ... }"
+  | LocalDecl ids -> "var " ^ (identifiers_to_string ids) ^ ";"
+  | Return exp -> "return " ^ (exp_to_string exp) ^ ";"
+
 
 (**
   * Misc.
   *)
-
-let identifier_to_string (id: Ast.identifier) =
-  id.Ast.identifier
-
-let rec identifiers_to_string (ids: Ast.identifier list): string =
-  match ids with
-  | [] -> ""
-  | id :: [] -> identifier_to_string id
-  | id :: ids' -> identifier_to_string id ^ ", " ^ (identifiers_to_string ids')
 
 let pp_identifier (id: Ast.identifier) =
   printf "%s" id.Ast.identifier

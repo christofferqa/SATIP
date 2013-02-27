@@ -49,26 +49,43 @@ let compile filename =
     ast' in
   let ()   = print_endline "Applying phases:" in
   let ()   = print_newline() in
+  
   let prog = apply parse_file filename "parsing" in
   let ()   = apply Astpp.pp_program prog "ast pretty printing" in
-  (* let wast = apply Weeding.weed_program prog "weeding" in *)
+  
   let east = apply Environment.env_program prog "building environment" in
   let ()   = apply Environmentpp.pp_env east "pretty printing environment" in
+  
   let tc   = apply TypeConstraintGenerator.generate_type_constraints east "generating type constraints" in
   let ()   = apply TypeConstraintpp.pp_type_constraints tc "pretty printing type constraints" in
   let tcs  = apply TypeConstraintSolver.solve_type_constraints tc "solving type constraints" in
   let ()   = apply TypeConstraintpp.pp_type_constraints tcs "pretty printing solution to type constraints" in
+  
   let cc   = apply ClosureAnalysisConstraintGenerator.generate_closure_constraints east "generating closure constraints" in
   let ()   = apply Cubicpp.pp_cubic_instance cc "pretty printing closure constraints" in
   let ccs  = apply ClosureAnalysisConstraintSolver.solve_closure_constraints cc "solving closure constraints" in
   let ()   = apply Cubicpp.pp_cubic_solution ccs "pretty printing solution to closure constraints" in
+  
+  let cfg  = apply ControlFlowGraph.generate_cfg_from_function (List.hd prog.Ast.program_decl) "generating cfg" in
+  
+  let ()   = apply (LivenessAnalysis.analyze_liveness prog) cfg "analyzing liveness" in
+  let ()   = apply (ReachingDefinitionsAnalysis.analyze_reaching_definitions prog) cfg "analyzing reaching definitions" in
   ()
-
 
 let _ =
   let filename = ref "" in
   let usagemsg = "Usage: tip <filename>" in
-  let argspec = Arg.align [] in
+  let argspec = Arg.align
+    [("-type", Arg.Set Globals.typeAnalysis,
+      " ...");
+     ("-closure", Arg.Set Globals.closureAnalysis,
+      " ...");
+     ("-cfg", Arg.Set Globals.cfg,
+      " ...");
+     ("-liveness", Arg.Set Globals.livenessAnalysis,
+      " ...");
+     ("-reachingdefs", Arg.Set Globals.reachingDefsAnalysis,
+      " ...") ] in
   Arg.parse argspec (fun s -> filename := s) usagemsg;
   begin
     (* We are in the batch compiler *)
