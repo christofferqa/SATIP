@@ -54,26 +54,11 @@ let make_lambda (node: CFG.node) cfg =
     | _ -> 
       add (DataFlowAnalysis.join_backwards_may node nodes cfg))
 
-let pp_nc = (fun nc ->
-    match nc with
-    | CFG.ExpJump e -> Printf.sprintf "%s" (Astpp.exp_to_string e)
-    | CFG.Empty -> Printf.sprintf "%s" "Empty"
-    | CFG.Entry -> Printf.sprintf "%s" "Entry"
-    | CFG.Exit -> Printf.sprintf "%s" "Exit"
-    | CFG.SimpleStm stm ->
-      match stm.Ast.stm with
-      | Ast.VarAssignment (id, e) -> Printf.sprintf "%s = %s;" id.Ast.identifier (Astpp.exp_to_string e)
-      | Ast.PointerAssignment (e, e') -> Printf.sprintf "%s = %s;" (Astpp.exp_to_string e) (Astpp.exp_to_string e')
-      | Ast.Output e -> Printf.sprintf "output %s;" (Astpp.exp_to_string e)
-      | Ast.LocalDecl is -> Printf.sprintf "var %s;" (List.fold_left (fun s i -> i.Ast.identifier ^ ", " ^ s) "" is)
-      | Ast.Return e -> Printf.sprintf "return %s;" (Astpp.exp_to_string e)
-      | _ -> "Doesnt Occur")
-
 let pp_value node_map : unit =
   NodeMap.iter
     (fun node id_set ->
       let node_content = CFG.get_node_content node in
-      Printf.printf "\n%s\n" (pp_nc node_content);
+      Printf.printf "\n%s\n" (ControlFlowGraph.node_content_to_string node_content);
       IdentifierSet.iter (fun id -> Printf.printf " -> %s\n" id) id_set)
     node_map
 
@@ -90,5 +75,5 @@ let analyze_function f cfg =
   let res = FixedPoint.naive big_F bottom in
   pp_value res
 
-let analyze_liveness prog cfg =
+let analyze_program prog cfg =
   List.iter (fun f -> analyze_function f cfg) prog.Ast.program_decl

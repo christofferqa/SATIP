@@ -68,8 +68,9 @@ let compile filename =
   
   let cfg  = apply ControlFlowGraph.generate_cfg_from_function (List.hd prog.Ast.program_decl) "generating cfg" in
   
-  let ()   = apply (LivenessAnalysis.analyze_liveness prog) cfg "analyzing liveness" in
-  let ()   = apply (ReachingDefinitionsAnalysis.analyze_reaching_definitions prog) cfg "analyzing reaching definitions" in
+  let ()   = apply (LivenessAnalysis.analyze_program prog) cfg "analyzing liveness" in
+  let ()   = apply (ReachingDefinitionsAnalysis.analyze_program prog) cfg "analyzing reaching definitions" in
+  let ()   = apply (AvailableExpressionsAnalysis.analyze_program prog) cfg "analyzing available expressions" in
   ()
 
 let _ =

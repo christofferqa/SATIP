@@ -10,6 +10,7 @@ type c = content
 type node
 
 val get_node_content: node -> c
+val node_content_to_string : c -> string
 val get_node_id: node -> int
 val succ : node -> t -> node list
 val pred : node -> t -> node list

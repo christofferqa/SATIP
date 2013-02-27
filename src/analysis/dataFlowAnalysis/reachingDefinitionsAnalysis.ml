@@ -30,19 +30,11 @@ let make_lambda (node: CFG.node) cfg =
       (* [[v]] = JOIN(v) *)
       add (DataFlowAnalysis.join_forwards_may node nodes cfg))
 
-let pp_node_content node_content =
-  match node_content with
-  | CFG.SimpleStm stm -> Printf.sprintf "%s" (Astpp.stm_to_string stm)
-  | CFG.ExpJump e -> Printf.sprintf "%s" (Astpp.exp_to_string e)
-  | CFG.Empty -> Printf.sprintf "%s" "Empty"
-  | CFG.Entry -> Printf.sprintf "%s" "Entry"
-  | CFG.Exit -> Printf.sprintf "%s" "Exit"
-
 let pp_value node_map =
   NodeMap.iter
     (fun node stm_set -> 
       let node_content = CFG.get_node_content node in
-      Printf.printf "\n%s\n" (pp_node_content node_content);
+      Printf.printf "\n%s\n" (ControlFlowGraph.node_content_to_string node_content);
       StmSet.iter (fun stm -> Printf.printf " -> %s\n" (Astpp.stm_to_string stm)) stm_set)
     node_map
 
@@ -59,5 +51,5 @@ let analyze_function f cfg =
   let res = FixedPoint.naive big_F bottom in
   pp_value res
 
-let analyze_reaching_definitions prog cfg =
+let analyze_program prog cfg =
   List.iter (fun f -> analyze_function f cfg) prog.Ast.program_decl

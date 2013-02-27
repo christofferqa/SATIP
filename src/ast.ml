@@ -91,3 +91,21 @@ let is_identical_identifiers (exp1: exp) (exp2: exp): bool =
 
 let expressions_equal (exp1: exp) (exp2: exp): bool =
   exp1.exp = exp2.exp
+
+(* Returns true if exp1 contains exp_desc *)
+let rec exp_contains (exp1: exp) (exp_desc: exp_desc): bool =
+  if exp1.exp = exp_desc
+  then true
+  else
+    match exp1.exp with
+    | Binop (exp', _, exp'') -> exp_contains exp' exp_desc || exp_contains exp'' exp_desc
+    | Unop (_, exp') -> exp_contains exp' exp_desc
+    | FunctionInvocation (id, exps) ->
+      List.fold_left
+        (fun acc exp' -> (exp_contains exp' exp_desc) || acc)
+        false exps
+    | PointerInvocation (exp', exps) ->
+      List.fold_left
+        (fun acc exp' -> (exp_contains exp' exp_desc) || acc)
+        (exp_contains exp' exp_desc) exps
+    | _ -> false

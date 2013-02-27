@@ -4,23 +4,18 @@ type content =
 | Empty
 | Entry
 | Exit
-    
+
+let node_content_to_string node_content =
+  match node_content with
+  | SimpleStm stm -> Printf.sprintf "%s" (Astpp.stm_to_string stm)
+  | ExpJump e -> Printf.sprintf "%s" (Astpp.exp_to_string e)
+  | Empty -> Printf.sprintf "%s" "Empty"
+  | Entry -> Printf.sprintf "%s" "Entry"
+  | Exit -> Printf.sprintf "%s" "Exit"
+
 module NodeContent : DirectedGraph.T with type t = content = struct
   type t = content
-  let pp = (fun nc ->
-    match nc with
-    | ExpJump e -> Printf.sprintf "%s" (Astpp.exp_to_string e)
-    | Empty -> Printf.sprintf "%s" "Empty"
-    | Entry -> Printf.sprintf "%s" "Entry"
-    | Exit -> Printf.sprintf "%s" "Exit"
-    | SimpleStm stm -> 
-      match stm.Ast.stm with
-      | Ast.VarAssignment (id, e) -> Printf.sprintf "%s = %s;" id.Ast.identifier (Astpp.exp_to_string e)
-      | Ast.PointerAssignment (e, e') -> Printf.sprintf "%s = %s;" (Astpp.exp_to_string e) (Astpp.exp_to_string e')
-      | Ast.Output e -> Printf.sprintf "output %s;" (Astpp.exp_to_string e)
-      | Ast.LocalDecl is -> Printf.sprintf "var %s;" (List.fold_left (fun s i -> i.Ast.identifier ^ ", " ^ s) "" is)
-      | Ast.Return e -> Printf.sprintf "return %s;" (Astpp.exp_to_string e)
-      | _ -> "Doesnt Occur")
+  let pp = node_content_to_string
 end
     
 include DirectedGraph.Make(NodeContent)
@@ -111,10 +106,3 @@ let rec generate_cfg_of_single_stm stm =
     connect_many cfg_sinks [exit_node] |>
     connect_many [entry_node] cfg_sources |>
     remove_many empty_nodes
-	
-
-    
-    
-
-
-
