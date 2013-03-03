@@ -57,7 +57,7 @@ let rec stm_to_string (stm: Ast.stm) =
   match stm.stm with
   | VarAssignment (id, exp) -> (identifier_to_string id) ^ " = " ^ (exp_to_string exp) ^ ";"
   | PointerAssignment (exp1, exp2) -> (exp_to_string exp1) ^ " = " ^ (exp_to_string exp2) ^ ";"
-  | Output exp -> "output" ^ (exp_to_string exp)
+  | Output exp -> "output " ^ (exp_to_string exp)
   | IfThen (exp, stms) -> "if (" ^ (exp_to_string exp) ^ ") { ... }"
   | IfThenElse (exp, stms1, stms2) -> "if (" ^ (exp_to_string exp) ^ ") { ... } else { ... }"
   | While (exp, stms) -> "while (" ^ (exp_to_string exp) ^ ") { ... }"

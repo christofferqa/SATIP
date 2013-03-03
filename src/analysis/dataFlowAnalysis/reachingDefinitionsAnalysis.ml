@@ -55,7 +55,7 @@ let pp_value node_map =
     node_map
 
 let analyze_function f cfg =
-  let res = FixedPoint.run_worklist make_lambda dep StmSet.empty cfg pp_value in
+  let res = FixedPoint.run_worklist make_lambda dep StmSet.empty cfg in
   pp_value res
 
 let analyze_program prog cfg =

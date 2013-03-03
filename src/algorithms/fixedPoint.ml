@@ -11,7 +11,7 @@ let rec naive big_F x =
   then x
   else naive big_F x'
 
-let run_worklist constraint_lambda dep_lambda bottom cfg pp_value =
+let run_worklist constraint_lambda dep_lambda bottom cfg =
   (* worklist: a set consisting of each CFG node,
      lambda_map: a map from CFG nodes to their corresponding constraint (a function),
      deps: a map from CFG nodes to a set of CFG nodes the corresponding node depends on,
@@ -43,9 +43,11 @@ let run_worklist constraint_lambda dep_lambda bottom cfg pp_value =
 
   let rec visit =
     (fun worklist solution ->
+      (*
       let () = Printf.printf "Input to:\n" in
       let () = pp_value solution in
       print_newline();
+      *)
       if not (CFGNodeSet.is_empty worklist)
       then
         let node_i = CFGNodeSet.choose worklist in
@@ -57,14 +59,14 @@ let run_worklist constraint_lambda dep_lambda bottom cfg pp_value =
         then
           let worklist' = CFGNodeSet.union worklist' (CFGNodeMap.find node_i dep_map) in
           let solution' = CFGNodeMap.add node_i y solution in
+          (*
           let () = Printf.printf "Changed to:\n" in
           let () = pp_value solution' in
           print_newline();
+          *)
           visit worklist' solution'
         else
           visit worklist' solution
       else
-        solution
-    ) in
-  
+        solution) in
   visit worklist bottom_map

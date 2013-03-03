@@ -39,14 +39,7 @@ let make_lambda (node: ControlFlowGraph.node) cfg =
       | Ast.VarAssignment (id, exp) ->
         (* [[v]] = (JOIN(v) union exps(E))!id, where ! means "kill" *)
         ExpSet.filter
-          (fun exp ->
-            let () = Printf.printf "exp_contains: " in
-            let () = Astpp.pp_exp exp in
-            let () = Printf.printf ", " in
-            let () = Astpp.pp_exp { Ast.exp = Ast.Identifier id; Ast.exp_pos = Lexing.dummy_pos; Ast.exp_id = 0; } in
-            let res = not (Ast.exp_contains exp (Ast.Identifier id)) in
-            let () = Printf.printf " %b\n" res in
-            res)
+          (fun exp -> not (Ast.exp_contains exp (Ast.Identifier id)))
           (* Here we calculate JOIN(v) union exps(E): *)
           (ExpSet.union
             (DataFlowAnalysis.join_forwards_must node node_map cfg)
@@ -58,7 +51,6 @@ let make_lambda (node: ControlFlowGraph.node) cfg =
           (exps exp)
       | Ast.LocalDecl ids ->
         (* [[v]] = JOIN(v) *)
-        Printf.printf "In a local decl\n";
         DataFlowAnalysis.join_forwards_must node node_map cfg
       | _ ->
         (* [[v]] = JOIN(v) *)
@@ -123,7 +115,7 @@ let all_exps cfg =
     ExpSet.empty cfg
 
 let analyze_function f cfg =
-  let res = FixedPoint.run_worklist make_lambda dep (all_exps cfg) cfg pp_value in
+  let res = FixedPoint.run_worklist make_lambda dep (all_exps cfg) cfg in
   pp_value res
 
 let analyze_program prog cfg =
