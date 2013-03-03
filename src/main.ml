@@ -70,7 +70,7 @@ let compile filename =
   
   (* let ()   = apply (LivenessAnalysis.analyze_program prog) cfg "analyzing liveness" in *)
   let ()   = apply (ReachingDefinitionsAnalysis.analyze_program prog) cfg "analyzing reaching definitions" in
-  (* let ()   = apply (AvailableExpressionsAnalysis.analyze_program prog) cfg "analyzing available expressions" in *)
+  let ()   = apply (AvailableExpressionsAnalysis.analyze_program prog) cfg "analyzing available expressions" in
   ()
 
 let _ =

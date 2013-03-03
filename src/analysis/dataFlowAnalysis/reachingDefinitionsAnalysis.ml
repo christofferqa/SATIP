@@ -30,14 +30,14 @@ let make_lambda (node: CFG.node) cfg =
 let dep (node: CFG.node) cfg =
   let preds = 
     List.fold_left
-      (fun acc node_pred -> CFGNodeSet.union acc (CFGNodeSet.singleton node_pred))
+      (fun acc node_pred -> CFGNodeSet.add node_pred acc)
       CFGNodeSet.empty (CFG.pred node cfg) in
   match (CFG.get_node_content node) with
   | CFG.SimpleStm stm ->
     (match stm.Ast.stm with
     | Ast.VarAssignment (id, e) ->
       (* [[v]] = JOIN(v)!id union {v}, where ! means "kill" *)
-    	CFGNodeSet.union preds (CFGNodeSet.singleton node)
+    	CFGNodeSet.add node preds
     | _ ->
       (* [[v]] = JOIN(v) *)
       preds)
@@ -55,7 +55,7 @@ let pp_value node_map =
     node_map
 
 let analyze_function f cfg =
-  let res = FixedPoint.run_worklist make_lambda dep StmSet.empty cfg in
+  let res = FixedPoint.run_worklist make_lambda dep StmSet.empty cfg pp_value in
   pp_value res
 
 let analyze_program prog cfg =

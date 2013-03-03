@@ -1,0 +1,8 @@
+def-use graph
+interval analysis
+sign analysis
+very busy expressions analysis
+
+other:
+- generalize cubic algorithm
+- generalize data flow analysis (join functions are specialized to a concrete set)

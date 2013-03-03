@@ -3,11 +3,45 @@ module CFG = ControlFlowGraph
 module IdentifierSet =
   Set.Make(String)
 
+module ExpSetCmpDesc =
+  Set.Make(struct
+    type t = Ast.exp
+    let compare e1 e2 = compare (Astpp.exp_to_string e1) (Astpp.exp_to_string e2)
+  end)
+
+let pp_exp_set_cmp_desc exp_set =
+  let rec visit =
+    (fun exp_set ->
+      if (ExpSetCmpDesc.cardinal exp_set) >= 2 then
+        let exp = ExpSetCmpDesc.choose exp_set in
+        let () = Printf.printf "%s, " (Astpp.exp_to_string exp) in
+        visit (ExpSetCmpDesc.remove exp exp_set)
+      else if (ExpSetCmpDesc.cardinal exp_set) = 1 then
+        let exp = ExpSetCmpDesc.choose exp_set in
+        Printf.printf "%s" (Astpp.exp_to_string exp)) in
+  Printf.printf "[";
+  visit exp_set;
+  Printf.printf "]"
+
 module ExpSet =
   Set.Make(struct
     type t = Ast.exp
     let compare e1 e2 = compare e1.Ast.exp_id e2.Ast.exp_id
   end)
+
+let pp_exp_set exp_set =
+  let rec visit =
+    (fun exp_set ->
+      if (ExpSet.cardinal exp_set) >= 2 then
+        let exp = ExpSet.choose exp_set in
+        let () = Printf.printf "%s, " (Astpp.exp_to_string exp) in
+        visit (ExpSet.remove exp exp_set)
+      else if (ExpSet.cardinal exp_set) = 1 then
+        let exp = ExpSet.choose exp_set in
+        Printf.printf "%s" (Astpp.exp_to_string exp)) in
+  Printf.printf "[";
+  visit exp_set;
+  Printf.printf "]"
 
 module StmSet =
   Set.Make(struct

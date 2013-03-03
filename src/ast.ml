@@ -98,6 +98,10 @@ let rec exp_contains (exp1: exp) (exp_desc: exp_desc): bool =
   then true
   else
     match exp1.exp with
+    | Identifier id1 ->
+      (match exp_desc with
+      | Identifier id2 -> id1.identifier = id2.identifier
+      | _ -> false)
     | Binop (exp', _, exp'') -> exp_contains exp' exp_desc || exp_contains exp'' exp_desc
     | Unop (_, exp') -> exp_contains exp' exp_desc
     | FunctionInvocation (id, exps) ->
