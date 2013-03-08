@@ -17,8 +17,8 @@ module Make(Instance: InstanceType) = struct
     *)
   
   (* Tokens, variables and constraints *)
-  type token = Instance.token
-  type variable = Instance.variable
+  type token = Token.token
+  type variable = Token.variable
   type incl_constraint =
     | TokenInclusion of token list * variable
     | VarInclusion of variable * variable
@@ -34,8 +34,8 @@ module Make(Instance: InstanceType) = struct
     *)
   
   (* module VariableMap = Map.Make(struct type t = int let compare = compare end) *)
-  module TokenMap = Map.Make(struct type t = token let compare = Instance.token_compare end)
-  module VariableMap = Map.Make(struct type t = variable let compare = Instance.variable_compare end)
+  module TokenMap = Map.Make(struct type t = token let compare = Token.token_compare end)
+  module VariableMap = Map.Make(struct type t = variable let compare = Token.variable_compare end)
   
   type entry = { token : token; bit : bool ref; pairs : (variable * variable) list ref }
   
@@ -43,7 +43,7 @@ module Make(Instance: InstanceType) = struct
   
   module NodeType = struct
     type t = (variable * token_to_entry_map)
-    let pp = (fun (var, entries) -> Instance.variable_to_string var)
+    let pp = (fun (var, entries) -> Astpp.exp_to_string var)
   end
   
   module Graph = DirectedGraph.Make(NodeType)
@@ -57,7 +57,7 @@ module Make(Instance: InstanceType) = struct
   (* Getters: *)
   
   let get_entries (var: variable) (nodes: var_to_node_map): token_to_entry_map =
-    let (var, entries) = Graph.get_node_content (VariableMap.find var nodes) in
+    let (var, entries) = Graph.get_node_content (VariableMap.find var.Ast.exp_id nodes) in
     entries
   
   let get_entry (var: variable) (token: token) (nodes: var_to_node_map): entry =
@@ -80,7 +80,7 @@ module Make(Instance: InstanceType) = struct
               TokenMap.add token { token = token; bit = ref false; pairs = ref [] } entries)
             TokenMap.empty instance.tokens in
         let node = Graph.make_node (var, entries) in
-        (Graph.add node graph, VariableMap.add var node nodes))
+        (Graph.add node graph, VariableMap.add var.Ast.exp_id node nodes))
       (Graph.empty, VariableMap.empty) instance.variables  
   
   (* Propagates all the token-bits from from_node to to_node. For each token-bit that is set at another node,
@@ -100,8 +100,8 @@ module Make(Instance: InstanceType) = struct
       let (graph, nodes) =
         List.fold_left
           (fun ((graph, nodes): Graph.t * var_to_node_map) ((var1, var2): variable * variable) ->
-            let var1_node = VariableMap.find var1 nodes in
-            let var2_node = VariableMap.find var2 nodes in
+            let var1_node = VariableMap.find var1.Ast.exp_id nodes in
+            let var2_node = VariableMap.find var2.Ast.exp_id nodes in
             
             (* Add edge *)
             let graph = Graph.connect var1_node var2_node graph in
@@ -136,8 +136,8 @@ module Make(Instance: InstanceType) = struct
   let add_edges_from_pairs_list (pairs: (variable * variable) list) (graph: Graph.t) (nodes: var_to_node_map): Graph.t * var_to_node_map =
     List.fold_left
       (fun ((graph, nodes): Graph.t * var_to_node_map) ((var1, var2): variable * variable) ->
-        let var1_node = VariableMap.find var1 nodes in
-        let var2_node = VariableMap.find var2 nodes in
+        let var1_node = VariableMap.find var1.Ast.exp_id nodes in
+        let var2_node = VariableMap.find var2.Ast.exp_id nodes in
         let graph     = Graph.connect var1_node var2_node graph in
         propagate_entries var1_node var2_node graph nodes)
       (graph, nodes) pairs
@@ -191,7 +191,7 @@ module Make(Instance: InstanceType) = struct
             (* This constraint is handled by first testing if the bit corresponding to token in the
                node corresponding to var1 is 1. If this i so, then an edge between var2 and var3 is added.
                Otherwise the pair (y,z) is added to the list for that bit. *)
-            let (_, var1_entries) = Graph.get_node_content (VariableMap.find var1 nodes) in
+            let (_, var1_entries) = Graph.get_node_content (VariableMap.find var1.Ast.exp_id nodes) in
             let var1_entry = TokenMap.find token var1_entries in
             if !(var1_entry.bit)
             then
@@ -212,7 +212,7 @@ module Make(Instance: InstanceType) = struct
     let (graph, nodes) = get_solution_graph instance in
     
     VariableMap.fold
-      (fun (var: variable) (node: Graph.node) (solution: solution) ->
+      (fun (varid: int) (node: Graph.node) (solution: solution) ->
         let (var, entries) = Graph.get_node_content node in
         let var_closure =
           (* Get the closure (list of tokens) of this variable *)
@@ -236,41 +236,34 @@ module Make(Instance: InstanceType) = struct
   let rec tokens_to_string (tokens: token list): string =
     match tokens with
     | [] -> ""
-    | token :: [] -> (Instance.token_to_string token)
-    | token :: tokens' -> (Instance.token_to_string token) ^ ", " ^ (tokens_to_string tokens')
-  
-  let rec variables_to_string (variables: variable list): string =
-    match variables with
-    | [] -> ""
-    | variable :: [] -> (Instance.variable_to_string variable)
-    | variable :: variables' -> (Instance.variable_to_string variable) ^ ", " ^ (variables_to_string variables')
+    | token :: [] -> (Token.to_string token)
+    | token :: tokens' -> (Token.to_string token) ^ ", " ^ (tokens_to_string tokens')
   
   let constraint_to_string (incl_constraint: incl_constraint): string =
     match incl_constraint with
     | VarInclusion (var1, var2) ->
-      "[[" ^ (Instance.variable_to_string var1) ^ "]] subset [[" ^ (Instance.variable_to_string var2) ^ "]]"
+      "[[" ^ (Astpp.exp_to_string var1) ^ "]] subset [[" ^ (Astpp.exp_to_string var2) ^ "]]"
     | TokenInclusion (tokens, var) ->
-      "{" ^ (tokens_to_string tokens) ^ "} subset [[" ^ (Instance.variable_to_string var) ^ "]]"
+      "{" ^ (tokens_to_string tokens) ^ "} subset [[" ^ (Astpp.exp_to_string var) ^ "]]"
     | ConditionalInclusion (token, var1, var2, var3) ->
-      (Instance.token_to_string token) ^ " in [[" ^ (Instance.variable_to_string var1) ^ "]] => [[" ^ (Instance.variable_to_string var2) ^ "]] subset [[" ^(Instance.variable_to_string var3) ^ "]]"
+      (Token.to_string token) ^ " in [[" ^ (Astpp.exp_to_string var1) ^ "]] => [[" ^ (Astpp.exp_to_string var2) ^ "]] subset [[" ^(Astpp.exp_to_string var3) ^ "]]"
   
   let pp_constraint (incl_constraint: incl_constraint) =
     printf "%s" (constraint_to_string incl_constraint)
   
   let pp_instance (instance: instance) =
     printf "Tokens: %s" (tokens_to_string instance.tokens); print_newline();
-    printf "Variables: %s" (variables_to_string instance.variables); print_newline();
+    printf "Variables: %s" (Astpp.exps_to_string instance.variables); print_newline();
     print_endline "Constraints:";
-    List.iter
-      (fun (incl_constraint: incl_constraint) ->
-        printf "  "; pp_constraint incl_constraint; print_newline())
-      instance.constraints
+    List.iter (fun (incl_constraint: incl_constraint) ->
+      printf "  "; pp_constraint incl_constraint; print_newline()
+    ) instance.constraints
   
   let pp_solution (solution: solution) =
     List.iter
       (fun ((var, tokens): (variable * token list)) ->
         printf "  [[";
-        printf "%s" (Instance.variable_to_string var);
+        Astpp.pp_exp var;
         printf "]] = {";
         printf "%s" (tokens_to_string tokens);
         printf "}";

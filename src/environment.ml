@@ -67,7 +67,7 @@ let rec env_check_exp (exp: Ast.exp) (map: env) =
 and
 
 env_check_exps (exps: Ast.exp list) (map: env) =
-  Utils.iter exps (fun (exp: Ast.exp) -> env_check_exp exp map)
+  List.iter (fun (exp: Ast.exp) -> env_check_exp exp map) exps
 
 
 (**

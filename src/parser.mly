@@ -1,23 +1,19 @@
 /* File parser.mly */
 %{
-  let id = ref 0
-  
-  let new_id = (fun old_id -> id := !id + 1; !id)
-  
   let make_identifier pos i =
     { Ast.identifier_pos = pos;
       Ast.identifier = i;
-      Ast.identifier_id = new_id !id }
+      Ast.identifier_id = Utils.new_id !(Utils.id) }
 
   let make_exp pos e =
     { Ast.exp_pos = pos;
       Ast.exp = e;
-      Ast.exp_id = new_id !id }
+      Ast.exp_id = Utils.new_id !(Utils.id) }
   
   let make_stm pos s =
     { Ast.stm_pos = pos;
       Ast.stm = s;
-      Ast.stm_id = new_id !id }
+      Ast.stm_id = Utils.new_id !(Utils.id) }
 
   let make_function pos decl =
     { Ast.function_decl_pos = pos;

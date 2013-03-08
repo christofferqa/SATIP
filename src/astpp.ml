@@ -40,7 +40,7 @@ let rec exp_to_string (exp: Ast.exp): string =
   | Binop (exp1, binop, exp2) -> (exp_to_string exp1) ^ (binop_to_string binop) ^ (exp_to_string exp2)
   | Unop (unop, exp') -> (unop_to_string unop) ^ (exp_to_string exp')
   | Input -> "input"
-  | Malloc -> "malloc"
+  | Malloc -> "malloc(" ^ (string_of_int exp.Ast.exp_id) ^ ")"
   | Null -> "null"
   | FunctionInvocation (id, exps) -> (Ast.i2s id) ^ "(" ^ (exps_to_string exps) ^ ")"
   | PointerInvocation (exp', exps) -> "(" ^ (exp_to_string exp') ^ ")(" ^ (exps_to_string exps) ^ ")"

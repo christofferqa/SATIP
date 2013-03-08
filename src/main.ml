@@ -51,27 +51,36 @@ let compile filename =
   let ()   = print_newline() in
   
   let prog = apply parse_file filename "parsing" in
-  let ()   = apply Astpp.pp_program prog "ast pretty printing" in
+  let ()   = apply Astpp.pp_program prog "pretty printing ast" in
   
   let east = apply Environment.env_program prog "building environment" in
+  let ()   = apply EnvironmentAstpp.pp_program east "pretty printing environment ast" in
   let ()   = apply Environmentpp.pp_env east "pretty printing environment" in
-  
+  (*
   let tc   = apply TypeConstraintGenerator.generate_type_constraints east "generating type constraints" in
   let ()   = apply TypeConstraintpp.pp_type_constraints tc "pretty printing type constraints" in
   let tcs  = apply TypeConstraintSolver.solve_type_constraints tc "solving type constraints" in
   let ()   = apply TypeConstraintpp.pp_type_constraints tcs "pretty printing solution to type constraints" in
-  
-  let cc   = apply ClosureAnalysisConstraintGenerator.generate_closure_constraints east "generating closure constraints" in
-  let ()   = apply Cubicpp.pp_cubic_instance cc "pretty printing closure constraints" in
-  let ccs  = apply ClosureAnalysisConstraintSolver.solve_closure_constraints cc "solving closure constraints" in
-  let ()   = apply Cubicpp.pp_cubic_solution ccs "pretty printing solution to closure constraints" in
-  
+  *)
+  let cc   = apply ClosureAnalysis.generate_closure_constraints east "generating closure constraints" in
+  let ()   = apply ClosureAnalysis.CubicAlg.pp_instance cc "pretty printing closure constraints" in
+  let ccs  = apply ClosureAnalysis.CubicAlg.solve_instance cc "solving closure constraints" in
+  let ()   = apply ClosureAnalysis.CubicAlg.pp_solution ccs "pretty printing solution to closure constraints" in
+  (*
   let cfg  = apply ControlFlowGraph.generate_cfg_from_function (List.hd prog.Ast.program_decl) "generating cfg" in
   
-  (* let ()   = apply (LivenessAnalysis.analyze_program prog) cfg "analyzing liveness" in *)
+  let ()   = apply (LivenessAnalysis.analyze_program prog) cfg "analyzing liveness" in
   let ()   = apply (ReachingDefinitionsAnalysis.analyze_program prog) cfg "analyzing reaching definitions" in
   let ()   = apply (AvailableExpressionsAnalysis.analyze_program prog) cfg "analyzing available expressions" in
   let ()   = apply (VeryBusyExpressionsAnalysis.analyze_program prog) cfg "analyzing very busy expressions" in
+  *)
+  let nast = apply NormalizeAst.normalize_program east "normalizing program" in
+  let ()   = apply EnvironmentAstpp.pp_program nast "pretty printing normalized ast" in
+    
+  let ac   = apply AndersensAnalysis.generate_constraints nast "generating andersen constraints" in
+  let ()   = apply AndersensAnalysis.CubicAlg.pp_instance ac "pretty printing andersen constraints" in
+  let acs  = apply AndersensAnalysis.CubicAlg.solve_instance ac "solving andersen constraints" in
+  let ()   = apply AndersensAnalysis.CubicAlg.pp_solution acs "pretty printing solution to andersen constraints" in
   ()
 
 let _ =

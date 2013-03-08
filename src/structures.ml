@@ -23,6 +23,29 @@ let pp_exp_set_cmp_desc exp_set =
   visit exp_set;
   Printf.printf "]"
 
+module ExpSetCmpIdDesc =
+  Set.Make(struct
+    type t = Ast.exp
+    let compare e1 e2 =
+      match e1.Ast.exp, e2.Ast.exp with
+      | Ast.Identifier id1, Ast.Identifier id2 -> compare id1.Ast.identifier id2.Ast.identifier
+      | _, _ -> compare e1.Ast.exp_id e2.Ast.exp_id
+  end)
+
+let pp_exp_set_cmp_id_desc exp_set =
+  let rec visit =
+    (fun exp_set ->
+      if (ExpSetCmpIdDesc.cardinal exp_set) >= 2 then
+        let exp = ExpSetCmpIdDesc.choose exp_set in
+        let () = Printf.printf "%s, " (Astpp.exp_to_string exp) in
+        visit (ExpSetCmpIdDesc.remove exp exp_set)
+      else if (ExpSetCmpIdDesc.cardinal exp_set) = 1 then
+        let exp = ExpSetCmpIdDesc.choose exp_set in
+        Printf.printf "%s" (Astpp.exp_to_string exp)) in
+  Printf.printf "[";
+  visit exp_set;
+  Printf.printf "]"
+
 module ExpSet =
   Set.Make(struct
     type t = Ast.exp
