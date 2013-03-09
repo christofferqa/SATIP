@@ -78,9 +78,9 @@ let compile filename =
   let ()   = apply EnvironmentAstpp.pp_program nast "pretty printing normalized ast" in
     
   let ac   = apply AndersensAnalysis.generate_constraints nast "generating andersen constraints" in
-  let ()   = apply AndersensAnalysis.CubicAlg.pp_instance ac "pretty printing andersen constraints" in
-  let acs  = apply AndersensAnalysis.CubicAlg.solve_instance ac "solving andersen constraints" in
-  let ()   = apply AndersensAnalysis.CubicAlg.pp_solution acs "pretty printing solution to andersen constraints" in
+  let ()   = apply AndersensAnalysis.C.pp_instance ac "pretty printing andersen constraints" in
+  let acs  = apply AndersensAnalysis.C.solve_instance ac "solving andersen constraints" in
+  let ()   = apply AndersensAnalysis.C.pp_solution acs "pretty printing solution to andersen constraints" in
   ()
 
 let _ =

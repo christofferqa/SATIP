@@ -50,12 +50,8 @@ let generate_constraints_invocation_exp (invocation_exp: Ast.exp) (exp: Ast.exp)
          where E' is the return statement of f.
          Notice that generate_constraints_invocation_exp_aux handles the constraints for i=1,...,n in (1). *)
       let function_name = func.EAst.function_decl.EAst.function_name in
-      let return_stm = List.nth func.EAst.function_decl.EAst.function_body ((List.length func.EAst.function_decl.EAst.function_body) - 1) in
-      let return_exp =
-        match return_stm.Ast.stm with
-        | Ast.Return exp -> exp
-        | _ -> Error.phase "ClosureAnalysisConstraintGenerator" "Internal error. Expected a return statement."
-        in
+      let return_exp = EAst.return_exp_from_func func in
+      
       let acc = { acc with
         CubicAlg.variables = add_vars_if_not_mem (exp :: return_exp :: invocation_exp :: []) acc.CubicAlg.variables;
         CubicAlg.constraints = CubicAlg.ConditionalInclusion (function_name, exp, return_exp, invocation_exp) :: acc.CubicAlg.constraints } in

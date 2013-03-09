@@ -1,11 +1,7 @@
 open Printf
 open EnvironmentStructures
-
 module EAst = EnvironmentAst
 
-(**
-  * TODO: (E)(...) should be normalized into (id)(...).
-  *)
 
 (**
   * This phase normalizes the environment AST such that:
@@ -111,6 +107,7 @@ let rec normalize_stm stm env stms =
   match stm.Ast.stm with
   | Ast.LocalDecl ids -> (stm :: stms, env)
   | Ast.Output exp ->
+    (* normalize subexpressions *)
     let (normalized_exp, new_stms, env) = normalize_exp exp [] env 0 in
     let stm = { stm with Ast.stm = Ast.Output normalized_exp } in
     (new_stms @ stm :: stms, env)
@@ -133,18 +130,21 @@ let rec normalize_stm stm env stms =
       (new_stms @ stms, env))
       
   | Ast.While (exp, stms') ->
+    (* normalize subexpressions and -statements *)
     let (normalized_exp, new_stms, env) = normalize_exp exp [] env 0 in
     let (normalized_stms, env) = normalize_stms stms' env in
     let stm = { stm with Ast.stm = Ast.While (normalized_exp, normalized_stms) } in
     (new_stms @ stm :: stms, env)
     
   | Ast.IfThen (exp, stms') ->
+    (* normalize subexpressions and -statements *)
     let (normalized_exp, new_stms, env) = normalize_exp exp [] env 0 in
     let (normalized_stms, env) = normalize_stms stms' env in
     let stm = { stm with Ast.stm = Ast.IfThen (normalized_exp, normalized_stms) } in
     (new_stms @ stm :: stms, env)
     
   | Ast.IfThenElse (exp, stms1, stms2) ->
+    (* normalize subexpressions and -statements *)
     let (normalized_exp, new_stms, env) = normalize_exp exp [] env 0 in
     let (normalized_stms1, env) = normalize_stms stms1 env in
     let (normalized_stms2, env) = normalize_stms stms2 env in
@@ -152,11 +152,14 @@ let rec normalize_stm stm env stms =
     (new_stms @ stm :: stms, env)
     
   | Ast.PointerAssignment (exp1, exp2) ->
+    (* normalize pointer assignment *)
     (match exp1.Ast.exp, exp2.Ast.exp with
-    | Ast.Unop (Ast.Dereference, _), Ast.Identifier _ -> (* Already normalized *)
+    | Ast.Unop (Ast.Dereference, _), Ast.Identifier _ ->
+      (* already normalized *)
       (stm :: stms, env)
       
-    | Ast.Unop (Ast.Dereference, _), _ -> (* Normalize right hand side *)
+    | Ast.Unop (Ast.Dereference, _), _ ->
+      (* normalize right hand side *)
       (* normalize subexpressions *)
       let (normalized_exp2, new_stms, env) = normalize_exp exp2 [] env 0 in
       
@@ -167,15 +170,20 @@ let rec normalize_stm stm env stms =
       
       (new_stms @ stms, env)
       
-    | _, Ast.Identifier _ -> (* Normalize left hand side *)
+    | _, Ast.Identifier _ ->
+      (* normalize left hand side *)
+      (* normalize subexpressions *)
+      let (normalized_exp1, new_stms, env) = normalize_exp exp1 [] env 0 in
+      
       (* normalize pointer assignment *)
       let temp_id = generate_unique_identifier env in
       let stm_ptr_assign = { stm with Ast.stm = Ast.PointerAssignment (Ast.i2exp temp_id, exp2) } in
-      let (_, stms, env) = add_temp_assign_to (Some temp_id) exp1 (stm_ptr_assign :: stms) env in
+      let (_, stms, env) = add_temp_assign_to (Some temp_id) normalized_exp1 (stm_ptr_assign :: stms) env in
       
       (new_stms @ stms, env)
       
-    | _, _ -> (* Normalize both sides *)
+    | _, _ ->
+      (* normalize both sides *)
       (* normalize pointer assignment (left) *)
       let temp_id1 = generate_unique_identifier env in
       let stm_temp_decl1 = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.LocalDecl [temp_id1]; Ast.stm_id = Utils.new_id !(Utils.id) } in
@@ -196,6 +204,7 @@ let rec normalize_stm stm env stms =
       (new_stms @ stm_temp_decl1 :: stm_temp_decl2 :: stm_temp_assign1 :: stm_temp_assign2 :: stm_ptr_assign :: stms, env))
       
   | Ast.VarAssignment (id, exp) ->
+    (* normalize subexpressions *)
     let (normalized_exp, new_stms, env) = normalize_exp exp [] env 0 in
     let stm = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.VarAssignment (id, normalized_exp); Ast.stm_id = Utils.new_id !(Utils.id) } in
     (new_stms @ stm :: stms, env)
@@ -208,8 +217,8 @@ normalize_stms stms env =
     stms ([], env)
 
 let normalize_function func =
-  let env = func.EAst.function_decl.EAst.function_env in
-  let (body, env) = normalize_stms func.EAst.function_decl.EAst.function_body env in
+  let (body, env) = normalize_stms func.EAst.function_decl.EAst.function_body
+                                   func.EAst.function_decl.EAst.function_env in
   let func_decl_desc =
     { EAst.function_name    = func.EAst.function_decl.EAst.function_name;
       EAst.function_formals = func.EAst.function_decl.EAst.function_formals;
