@@ -46,7 +46,8 @@ let rec generate_targets_from_exp exp (target_set, taken_addresses_set) =
   | Ast.Input
   | Ast.Null
   | Ast.IntConst _
-  | Ast.Identifier _ -> (target_set, taken_addresses_set)
+  | Ast.Identifier _ ->
+    (target_set, taken_addresses_set)
 
 
 and
@@ -97,16 +98,64 @@ generate_targets_from_stms stms (target_set, taken_addresses_set) =
   * Functions to generate constraints.
   *)
 
-let rec generate_constraints_from_stm stm instance target_set =
+let rec generate_constraints_from_exp exp instance target_set funcs env =
+  match exp.Ast.exp with
+  | Ast.Binop (exp1, binop, exp2) ->
+    generate_constraints_from_exp exp2 (generate_constraints_from_exp exp1 instance target_set funcs env) target_set funcs env
+  | Ast.Unop (unop, exp) ->
+    generate_constraints_from_exp exp instance target_set funcs env
+  | Ast.FunctionInvocation (id, exps) ->
+    (* already handled in generate_constraints_from_stm *)
+    instance
+  | Ast.PointerInvocation (exp', exps) ->
+    (* already handled in generate_constraints_from_stm *)
+    instance
+  | Ast.Malloc ->
+    instance
+  | Ast.Input ->
+    instance
+  | Ast.Null ->
+    instance
+  | Ast.IntConst _ ->
+    instance
+  | Ast.Identifier id ->
+    (* a reference to a constrant function generates the constraint: {f} subset [[f]] *)
+    if Env.mem id.Ast.identifier env then
+      match Env.find id.Ast.identifier env with
+      | EnvironmentStructures.FunctionDecl _ ->
+        { instance with CubicAlg.constraints = CubicAlg.TokenInclusion ([exp], exp) :: instance.CubicAlg.constraints }
+      | _ ->
+        instance
+    else
+      instance
+    
+
+and
+
+generate_constraints_from_exps exps instance target_set funcs env =
+  List.fold_right
+    (fun exp instance ->
+      generate_constraints_from_exp exp instance target_set funcs env)
+    exps instance
+
+let rec generate_constraints_invocation_exp_formals function_name exp arguments formals instance =
+  match arguments, formals with
+  | [], [] -> instance
+  | argument :: arguments', formal :: formals' ->
+    let instance = { instance with CubicAlg.constraints = CubicAlg.ConditionalInclusion (function_name, exp, argument, Ast.i2exp formal) :: instance.CubicAlg.constraints } in
+    generate_constraints_invocation_exp_formals exp function_name arguments' formals' instance
+  | _ -> Error.phase "Andersen's Analysis" "Internal error. Expected the argument and formal list to be of the same length."
+
+let rec generate_constraints_from_stm stm instance target_set funcs env =
   match stm.Ast.stm with
   | Ast.While (exp, stms) -> (* no constraints *)
-    generate_constraints_from_stms stms instance target_set
+    generate_constraints_from_stms stms instance target_set funcs env
     
   | Ast.IfThen (exp, stms) -> (* no constraints *)
-    generate_constraints_from_stms stms instance target_set
+    generate_constraints_from_stms stms instance target_set funcs env
     
   | Ast.IfThenElse (exp, stms1, stms2) -> (* no constraints *)
-    generate_constraints_from_stms stms1 (generate_constraints_from_stms stms2 instance target_set) target_set
+    generate_constraints_from_stms stms1 (generate_constraints_from_stms stms2 instance target_set funcs env) target_set funcs env
     
   | Ast.VarAssignment (id1, exp) ->
     (match exp.Ast.exp with
@@ -124,6 +173,43 @@ let rec generate_constraints_from_stm stm instance target_set =
         (fun alpha instance ->
           { instance with CubicAlg.constraints = CubicAlg.ConditionalInclusion (alpha, id2, alpha, Ast.i2exp id1) :: instance.CubicAlg.constraints })
         target_set instance
+     
+    | Ast.FunctionInvocation (id2, exps) ->
+      (* a reference to a constant function generates the constraint: {f} subset [[f]] *)
+      let instance =
+        if Env.mem id2.Ast.identifier env then
+          match Env.find id2.Ast.identifier env with
+          | EnvironmentStructures.FunctionDecl _ ->
+            { instance with CubicAlg.constraints = CubicAlg.TokenInclusion ([exp], exp) :: instance.CubicAlg.constraints }
+          | _ ->
+            instance
+        else
+          instance in
+      
+      (* function calls (id_2)(a_1,...a_n) generates the constraint f in [[id_2]] => [[a_1]] subset [[x_1]] /\ ... /\ [[a_n]] subset [[x_n]] /\ [[id]] subset [[id_1]], for ... *)
+      let instance =
+        List.fold_right
+          (fun func instance ->
+            let function_name = Ast.i2exp func.EAst.function_decl.EAst.function_name in
+            let return_stm = List.nth func.EAst.function_decl.EAst.function_body ((List.length func.EAst.function_decl.EAst.function_body) - 1) in
+            let return_exp =
+              match return_stm.Ast.stm with
+              | Ast.Return exp -> exp
+              | _ -> Error.phase "Andersen's Analysis" "Internal error. Expected a return statement." in
+
+            (* The constraint for the return expression *)
+            let instance = { instance with CubicAlg.constraints = CubicAlg.ConditionalInclusion (function_name, Ast.i2exp id2, return_exp, Ast.i2exp id1) :: instance.CubicAlg.constraints } in
+            
+            (* The constraints for the formals *)
+            generate_constraints_invocation_exp_formals function_name (Ast.i2exp id2) exps func.EAst.function_decl.EAst.function_formals instance)
+          funcs instance in
+      
+      (* no need to check exps for constraints, as functions invocations has been normalized! *)
+      instance
+    
+    | Ast.PointerInvocation (exp, exps) ->
+      (* doesn't occur since AST have been normalized *)
+      instance
       
     | _ -> (* no constraints *)
       instance)
@@ -144,22 +230,24 @@ let rec generate_constraints_from_stm stm instance target_set =
 
 and
 
-generate_constraints_from_stms stms instance target_set =
+generate_constraints_from_stms stms instance target_set funcs env =
   List.fold_right
     (fun stm instance ->
-      generate_constraints_from_stm stm instance target_set)
+      generate_constraints_from_stm stm instance target_set funcs env)
     stms instance
 
 let generate_constraints prog =
   let (target_set, taken_addresses_set) =
     List.fold_left
       (fun (target_set, taken_addresses_set) func ->
-        generate_targets_from_stms func.EAst.function_decl.EAst.function_body (target_set, taken_addresses_set))
+        let (target_set, taken_addresses_set) = generate_targets_from_stms func.EAst.function_decl.EAst.function_body (target_set, taken_addresses_set) in
+        let function_id = Ast.i2exp func.EAst.function_decl.EAst.function_name in
+        (ExpSet.add function_id target_set, taken_addresses_set))
       (ExpSet.empty, ExpSet.empty) prog.EAst.program_decl in
       
   let targets = ExpSet.elements target_set in
   
   List.fold_right
     (fun func instance ->
-      generate_constraints_from_stms func.EAst.function_decl.EAst.function_body instance taken_addresses_set)
+      generate_constraints_from_stms func.EAst.function_decl.EAst.function_body instance taken_addresses_set prog.EAst.program_decl func.EAst.function_decl.EAst.function_env)
     prog.EAst.program_decl { CubicAlg.tokens = targets; CubicAlg.variables = targets; CubicAlg.constraints = [] }
