@@ -42,3 +42,16 @@ let join_forwards_must_str node node_map cfg =
   List.fold_left
     (fun acc node_pred -> StringSet.inter acc (CFGNodeMap.find node_pred node_map))
     union (CFG.pred node cfg)
+
+type strategy =
+  | Forwards
+  | Backwards
+
+let dep strategy node cfg =
+  let nodes =
+    match strategy with
+    | Forwards -> CFG.pred node cfg
+    | Backwards -> CFG.succ node cfg in
+  List.fold_left
+    (fun acc node -> CFGNodeSet.add node acc)
+    CFGNodeSet.empty nodes

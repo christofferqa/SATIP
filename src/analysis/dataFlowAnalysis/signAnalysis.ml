@@ -1,6 +1,7 @@
 open SignLattice
 open Structures
 module CFG = ControlFlowGraph
+module DFA = DataFlowAnalysis
 module EAst = EnvironmentAst
 
 (* Relation to notes: node corresponds to v, node_pres to w and node_pred_constraint to [[w]]. *)
@@ -47,12 +48,6 @@ let make_lambda bottom node cfg =
       (* [[v]] = JOIN(v) *)
       join_v)
 
-let dep (node: CFG.node) cfg =
-  (* predecessors: *)
-  List.fold_left
-    (fun acc node_pred -> CFGNodeSet.add node_pred acc)
-    CFGNodeSet.empty (CFG.pred node cfg)
-
 let pp_value node_map =
   CFGNodeMap.iter
     (fun node vars_map -> 
@@ -64,14 +59,15 @@ let pp_value node_map =
 
 let analyze_function func cfg =
   let bottom =
+    (* The map where each identifier is mapped to the bottom-element: *)
     StringMap.fold
       (fun id decl acc ->
         match decl with
         | EnvironmentStructures.FunctionDecl _ -> acc
         | _ -> StringMap.add id Bottom acc)
       func.EAst.function_decl.EAst.function_env StringMap.empty in
-  let res = FixedPoint.run_worklist (make_lambda bottom) dep bottom cfg in
+  let res = FixedPoint.run_worklist (make_lambda bottom) (DFA.dep DFA.Forwards) bottom cfg in
   pp_value res
 
 let analyze_program prog cfg =
-  List.iter (fun f -> analyze_function f cfg) prog.EAst.program_decl
+  List.iter (fun func -> analyze_function func cfg) prog.EAst.program_decl

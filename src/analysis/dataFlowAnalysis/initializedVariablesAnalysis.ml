@@ -1,6 +1,7 @@
 open Structures
 module NodeMap = CFGNodeMap
 module CFG = ControlFlowGraph
+module DFA = DataFlowAnalysis
 
 let rec vars e = 
   match e.Ast.exp with
@@ -18,9 +19,9 @@ let rec vars e =
   | _ ->
     IdentifierSet.empty
 
-let make_lambda (node: CFG.node) cfg =
+let make_lambda node cfg =
   (fun node_map ->
-    match (CFG.get_node_content node) with
+    match CFG.get_node_content node with
     | CFG.Entry ->
       (* [[entry]] = {} *)
       IdentifierSet.empty
@@ -28,31 +29,25 @@ let make_lambda (node: CFG.node) cfg =
       (match stm.Ast.stm with
       | Ast.VarAssignment (id, e) ->
         (* [[v]] = JOIN(v) union {id} *)
-        IdentifierSet.add id.Ast.identifier (DataFlowAnalysis.join_forwards_must_str node node_map cfg)
+        IdentifierSet.add id.Ast.identifier (DFA.join_forwards_must_str node node_map cfg)
       | _ ->
         (* [[v]] = JOIN(v) *)
-        DataFlowAnalysis.join_forwards_must_str node node_map cfg)
+        DFA.join_forwards_must_str node node_map cfg)
     | _ ->
       (* [[v]] = JOIN(v) *)
-      DataFlowAnalysis.join_forwards_must_str node node_map cfg)
-
-let dep (node: CFG.node) cfg =
-  (* predecessors: *)
-  List.fold_left
-    (fun acc node_pred -> CFGNodeSet.add node_pred acc)
-    CFGNodeSet.empty (CFG.pred node cfg)
+      DFA.join_forwards_must_str node node_map cfg)
 
 let pp_value node_map : unit =
   NodeMap.iter
     (fun node id_set ->
       let node_content = CFG.get_node_content node in
-      Printf.printf "%s  -> " (ControlFlowGraph.node_content_to_string node_content);
+      Printf.printf "%s  -> " (CFG.node_content_to_string node_content);
       Structures.pp_string_set id_set;
       print_newline())
     node_map
 
 let analyze_function func cfg =
-  let res = FixedPoint.run_worklist make_lambda dep IdentifierSet.empty cfg in
+  let res = FixedPoint.run_worklist make_lambda (DFA.dep DFA.Forwards) IdentifierSet.empty cfg in
   pp_value res
 
 let analyze_program prog cfg =

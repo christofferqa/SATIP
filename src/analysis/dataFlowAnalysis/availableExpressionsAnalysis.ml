@@ -1,4 +1,6 @@
 open Structures
+module DFA = DataFlowAnalysis
+module CFG = ControlFlowGraph
 module ExpSet = ExpSetCmpDesc
 
 let rec exps e =
@@ -23,18 +25,18 @@ let rec exps e =
   | _ ->
     ExpSet.empty
 
-let make_lambda (node: ControlFlowGraph.node) cfg =
+let make_lambda node cfg =
   (fun node_map ->
-    match (ControlFlowGraph.get_node_content node) with
-    | ControlFlowGraph.Entry ->
+    match CFG.get_node_content node with
+    | CFG.Entry ->
       (* [[entry]] = {} *)
       ExpSet.empty
-    | ControlFlowGraph.ExpJump exp ->
+    | CFG.ExpJump exp ->
       (* [[v]] = JOIN(v) union exps(E) *)
       ExpSet.union
-        (DataFlowAnalysis.join_forwards_must node node_map cfg)
+        (DFA.join_forwards_must node node_map cfg)
         (exps exp)
-    | ControlFlowGraph.SimpleStm stm ->
+    | CFG.SimpleStm stm ->
       (match stm.Ast.stm with
       | Ast.VarAssignment (id, exp) ->
         (* [[v]] = (JOIN(v) union exps(E))!id, where ! means "kill" *)
@@ -42,49 +44,22 @@ let make_lambda (node: ControlFlowGraph.node) cfg =
           (fun exp -> not (Ast.exp_contains exp (Ast.Identifier id)))
           (* Here we calculate JOIN(v) union exps(E): *)
           (ExpSet.union
-            (DataFlowAnalysis.join_forwards_must node node_map cfg)
+            (DFA.join_forwards_must node node_map cfg)
             (exps exp))
       | Ast.Output exp ->
         (* [[v]] = JOIN(v) union exps(E) *)
         ExpSet.union
-          (DataFlowAnalysis.join_forwards_must node node_map cfg)
+          (DFA.join_forwards_must node node_map cfg)
           (exps exp)
       | Ast.LocalDecl ids ->
         (* [[v]] = JOIN(v) *)
-        DataFlowAnalysis.join_forwards_must node node_map cfg
+        DFA.join_forwards_must node node_map cfg
       | _ ->
         (* [[v]] = JOIN(v) *)
-        DataFlowAnalysis.join_forwards_must node node_map cfg)
+        DFA.join_forwards_must node node_map cfg)
     | _ -> 
       (* [[v]] = JOIN(v) *)
-      DataFlowAnalysis.join_forwards_must node node_map cfg)
-
-let dep (node: ControlFlowGraph.node) cfg =
-  let preds = 
-    List.fold_left
-      (fun acc node_pred -> CFGNodeSet.add node_pred acc)
-      CFGNodeSet.empty (CFG.pred node cfg) in
-  match (ControlFlowGraph.get_node_content node) with
-  | ControlFlowGraph.Entry ->
-    (* [[entry]] = {} *)
-    CFGNodeSet.empty
-  | ControlFlowGraph.ExpJump exp ->
-    (* [[v]] = JOIN(v) union exps(E) *)
-    CFGNodeSet.add node preds
-  | ControlFlowGraph.SimpleStm stm ->
-    (match stm.Ast.stm with
-    | Ast.VarAssignment (id, exp) ->
-      (* [[v]] = (JOIN(v) union exps(E))!id, where ! means "kill" *)
-      CFGNodeSet.add node preds
-    | Ast.Output exp ->
-      (* [[v]] = JOIN(v) union exps(E) *)
-      CFGNodeSet.add node preds
-    | _ ->
-      (* [[v]] = JOIN(v) *)
-      preds)
-  | _ -> 
-    (* [[v]] = JOIN(v) *)
-    preds
+      DFA.join_forwards_must node node_map cfg)
 
 let pp_value node_map =
   CFGNodeMap.iter
@@ -115,7 +90,7 @@ let all_exps cfg =
     ExpSet.empty cfg
 
 let analyze_function f cfg =
-  let res = FixedPoint.run_worklist make_lambda dep (all_exps cfg) cfg in
+  let res = FixedPoint.run_worklist make_lambda (DFA.dep DFA.Forwards) (all_exps cfg) cfg in
   pp_value res
 
 let analyze_program prog cfg =

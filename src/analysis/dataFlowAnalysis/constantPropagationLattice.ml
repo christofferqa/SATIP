@@ -20,8 +20,8 @@ let least_upper_bound const1 const2 =
     | IntConst _, QuestionMark -> QuestionMark
     | QuestionMark, _ -> QuestionMark
 
-let operator_abstract op c1 c2 =
-  match c1, c2 with
+let operator_abstract op const1 const2 =
+  match const1, const2 with
   | Bottom, _ -> Bottom
   | _, Bottom -> Bottom
   | QuestionMark, _ -> QuestionMark

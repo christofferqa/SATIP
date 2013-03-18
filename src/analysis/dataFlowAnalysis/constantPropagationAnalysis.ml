@@ -1,6 +1,7 @@
 open ConstantPropagationLattice
 open Structures
 module CFG = ControlFlowGraph
+module DFA = DataFlowAnalysis
 module EAst = EnvironmentAst
 
 (* Relation to notes: node corresponds to v, node_pres to w and node_pred_constraint to [[w]]. *)
@@ -47,17 +48,11 @@ let make_lambda bottom node cfg =
       (* [[v]] = JOIN(v) *)
       join_v)
 
-let dep (node: CFG.node) cfg =
-  (* predecessors: *)
-  List.fold_left
-    (fun acc node_pred -> CFGNodeSet.add node_pred acc)
-    CFGNodeSet.empty (CFG.pred node cfg)
-
 let pp_value node_map =
   CFGNodeMap.iter
     (fun node vars_map -> 
       let node_content = CFG.get_node_content node in
-      Printf.printf "%s  -> " (ControlFlowGraph.node_content_to_string node_content);
+      Printf.printf "%s  -> " (CFG.node_content_to_string node_content);
       Structures.pp_string_map vars_map const_to_string;
       print_newline())
     node_map
@@ -70,7 +65,7 @@ let analyze_function func cfg =
         | EnvironmentStructures.FunctionDecl _ -> acc
         | _ -> StringMap.add id Bottom acc)
       func.EAst.function_decl.EAst.function_env StringMap.empty in
-  let res = FixedPoint.run_worklist (make_lambda bottom) dep bottom cfg in
+  let res = FixedPoint.run_worklist (make_lambda bottom) (DFA.dep DFA.Forwards) bottom cfg in
   pp_value res
 
 let analyze_program prog cfg =
