@@ -32,3 +32,13 @@ let join_forwards_must node node_map cfg =
   List.fold_left
     (fun acc node_pred -> ExpSetCmpDesc.inter acc (CFGNodeMap.find node_pred node_map))
     union (CFG.pred node cfg)
+
+(* JOIN(v) := Intersection of [[w]] for w in pred(v): *)
+let join_forwards_must_str node node_map cfg =
+  let union =
+    List.fold_left
+      (fun acc node_pred -> StringSet.union acc (CFGNodeMap.find node_pred node_map))
+      StringSet.empty (CFG.pred node cfg) in
+  List.fold_left
+    (fun acc node_pred -> StringSet.inter acc (CFGNodeMap.find node_pred node_map))
+    union (CFG.pred node cfg)

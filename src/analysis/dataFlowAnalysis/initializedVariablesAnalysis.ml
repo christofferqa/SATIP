@@ -19,42 +19,28 @@ let rec vars e =
     IdentifierSet.empty
 
 let make_lambda (node: CFG.node) cfg =
-  (fun nodes ->
+  (fun node_map ->
     match (CFG.get_node_content node) with
-    | CFG.Exit ->
-      (* [[exit]] = {} *)
+    | CFG.Entry ->
+      (* [[entry]] = {} *)
       IdentifierSet.empty
-    | CFG.ExpJump e -> 
-      IdentifierSet.union
-        (DataFlowAnalysis.join_backwards_may node nodes cfg)
-        (vars e)
     | CFG.SimpleStm stm ->
       (match stm.Ast.stm with
-      | Ast.Output e ->
-        (* [[output E]] = JOIN(v) union vars(E) *)
-        IdentifierSet.union
-          (DataFlowAnalysis.join_backwards_may node nodes cfg)
-          (vars e)
       | Ast.VarAssignment (id, e) ->
-        IdentifierSet.union
-  	      (vars e)
-          (IdentifierSet.remove
-            (id.Ast.identifier)
-  		      (DataFlowAnalysis.join_backwards_may node nodes cfg))
-      | Ast.LocalDecl ids ->
-        List.fold_left
-	        (fun set id -> IdentifierSet.remove id.Ast.identifier set)
-	        (DataFlowAnalysis.join_backwards_may node nodes cfg) ids
+        (* [[v]] = JOIN(v) union {id} *)
+        IdentifierSet.add id.Ast.identifier (DataFlowAnalysis.join_forwards_must_str node node_map cfg)
       | _ ->
-        DataFlowAnalysis.join_backwards_may node nodes cfg)
-    | _ -> 
-      DataFlowAnalysis.join_backwards_may node nodes cfg)
+        (* [[v]] = JOIN(v) *)
+        DataFlowAnalysis.join_forwards_must_str node node_map cfg)
+    | _ ->
+      (* [[v]] = JOIN(v) *)
+      DataFlowAnalysis.join_forwards_must_str node node_map cfg)
 
 let dep (node: CFG.node) cfg =
-  (* successors: *)
+  (* predecessors: *)
   List.fold_left
-    (fun acc node_succ -> CFGNodeSet.add node_succ acc)
-    CFGNodeSet.empty (CFG.succ node cfg)
+    (fun acc node_pred -> CFGNodeSet.add node_pred acc)
+    CFGNodeSet.empty (CFG.pred node cfg)
 
 let pp_value node_map : unit =
   NodeMap.iter

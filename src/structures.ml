@@ -6,6 +6,20 @@ module StringSet =
 module IdentifierSet =
   Set.Make(String)
 
+let pp_string_set str_set =
+  let rec visit =
+    (fun str_set ->
+      if (StringSet.cardinal str_set) >= 2 then
+        let str = StringSet.choose str_set in
+        let () = Printf.printf "%s, " str in
+        visit (StringSet.remove str str_set)
+      else if (StringSet.cardinal str_set) = 1 then
+        let str = StringSet.choose str_set in
+        Printf.printf "%s" str) in
+  Printf.printf "{";
+  visit str_set;
+  Printf.printf "}"
+
 module ExpSetCmpDesc =
   Set.Make(struct
     type t = Ast.exp

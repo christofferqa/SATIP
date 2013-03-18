@@ -1,16 +1,5 @@
 open Structures
 
-let make_big_F lambdas =
-  List.fold_left
-    (fun acc lambda -> (fun v -> acc (lambda v)))
-    (fun i -> i) lambdas
-
-let rec naive big_F x =
-  let x' = big_F x in
-  if x = x'
-  then x
-  else naive big_F x'
-
 let run_worklist constraint_lambda dep_lambda bottom cfg =
   (* worklist: a set consisting of each CFG node,
      lambda_map: a map from CFG nodes to their corresponding constraint (a function),
