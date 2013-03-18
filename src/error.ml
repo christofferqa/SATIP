@@ -68,4 +68,4 @@ let error pos message =
 let phase phase message =
   Printf.printf "Error in phase %s: %s" phase message;
   print_newline();
-  exit 0
+  raise Exit

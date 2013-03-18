@@ -1,4 +1,4 @@
-open SignLattice
+open ConstantPropagationLattice
 open Structures
 module CFG = ControlFlowGraph
 module EAst = EnvironmentAst
@@ -9,22 +9,22 @@ let join node node_map cfg bottom =
     (fun acc node_pred ->
       let node_pred_constraint = CFGNodeMap.find node_pred node_map in
       StringMap.merge
-        (fun var sign1 sign2 ->
-          match sign1, sign2 with
-          | Some sign1, Some sign2 -> Some (least_upper_bound sign1 sign2)
-          | Some sign1, None -> Some sign1
-          | None, Some sign2 -> Some sign2
-          | _, _ -> Error.phase "Sign Analysis" "Internal error: StringMap.merge should not give None, None.")
+        (fun var const1 const2 ->
+          match const1, const2 with
+          | Some const1, Some const2 -> Some (least_upper_bound const1 const2)
+          | Some const1, None -> Some const1
+          | None, Some const2 -> Some const2
+          | _, _ -> Error.phase "constant propagation analysis" "Internal error: StringMap.merge should not give None, None.")
         acc node_pred_constraint)
     bottom (CFG.pred node cfg)
 
 let rec eval sigma exp =
   match exp.Ast.exp with
   | Ast.Identifier id -> StringMap.find id.Ast.identifier sigma
+  | Ast.IntConst c -> IntConst c
   | Ast.Input -> QuestionMark
-  | Ast.IntConst c -> if c = 0 then Zero else if c = 1 then One else if c > 1 then Plus else (* if c < 0 then *) Minus
   | Ast.Binop (exp1, binop, exp2) -> operator_abstract binop (eval sigma exp1) (eval sigma exp2)
-  | _ -> Error.phase "Sign analysis" "Internal error: Expression not handled."
+  | _ -> Error.phase "constant propagation analysis" "Internal error: Expression not handled."
 
 let make_lambda bottom node cfg =
   (fun node_map ->
@@ -38,7 +38,7 @@ let make_lambda bottom node cfg =
           (fun acc id -> StringMap.add (Ast.i2s id) QuestionMark acc)
           join_v ids
       | Ast.VarAssignment (id, e) ->
-        (* [[v]] = JOIN(v)[id -> eval(JOIN(V), E)] *)
+        (* [[v]] = JOIN(v)[id -> eval(JOIN(v), E)] *)
         StringMap.add (Ast.i2s id) (eval join_v e) join_v
       | _ ->
         (* [[v]] = JOIN(v) *)
@@ -58,7 +58,7 @@ let pp_value node_map =
     (fun node vars_map -> 
       let node_content = CFG.get_node_content node in
       Printf.printf "%s  -> " (ControlFlowGraph.node_content_to_string node_content);
-      Structures.pp_string_map vars_map sign_to_string;
+      Structures.pp_string_map vars_map const_to_string;
       print_newline())
     node_map
 

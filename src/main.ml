@@ -69,14 +69,15 @@ let compile filename =
   *)
   let cfg  = apply ControlFlowGraph.generate_cfg_from_function (List.hd prog.Ast.program_decl) "generating cfg" in
   
-  let ()   = apply (SignAnalysis.analyze_program east) cfg "analyzing signs" in
-  let ()   = apply (LivenessAnalysis.analyze_program prog) cfg "analyzing liveness" in
-  let ()   = apply (InitializedVariablesAnalysis.analyze_program prog) cfg "analyzing initialized variables" in (*
-  let ()   = apply (ReachingDefinitionsAnalysis.analyze_program prog) cfg "analyzing reaching definitions" in
-  let ()   = apply (AvailableExpressionsAnalysis.analyze_program prog) cfg "analyzing available expressions" in
-  let ()   = apply (VeryBusyExpressionsAnalysis.analyze_program prog) cfg "analyzing very busy expressions" in
+  (try apply (SignAnalysis.analyze_program east) cfg "analyzing signs" with | Exit -> ());
+  (try apply (LivenessAnalysis.analyze_program prog) cfg "analyzing liveness" with | Exit -> ());
+  (try apply (InitializedVariablesAnalysis.analyze_program prog) cfg "analyzing initialized variables" with | Exit -> ());
+  (try apply (ConstantPropagationAnalysis.analyze_program east) cfg "analyzing constant propagation" with | Exit -> ());
+  (try apply (ReachingDefinitionsAnalysis.analyze_program prog) cfg "analyzing reaching definitions" with | Exit -> ());
+  (try apply (AvailableExpressionsAnalysis.analyze_program prog) cfg "analyzing available expressions" with | Exit -> ());
+  (try apply (VeryBusyExpressionsAnalysis.analyze_program prog) cfg "analyzing very busy expressions" with | Exit -> ());
   
-  let nast = apply NormalizeAst.normalize_program east "normalizing program" in
+  (* let nast = apply NormalizeAst.normalize_program east "normalizing program" in
   let ()   = apply EnvironmentAstpp.pp_program nast "pretty printing normalized ast" in
     
   let ac   = apply AndersensAnalysis.generate_constraints nast "generating andersen constraints" in
