@@ -61,26 +61,27 @@ let compile filename =
   let ()   = apply TypeConstraintpp.pp_type_constraints tc "pretty printing type constraints" in
   let tcs  = apply TypeConstraintSolver.solve_type_constraints tc "solving type constraints" in
   let ()   = apply TypeConstraintpp.pp_type_constraints tcs "pretty printing solution to type constraints" in
-  *)
+  
   let cc   = apply ClosureAnalysis.generate_closure_constraints east "generating closure constraints" in
   let ()   = apply ClosureAnalysis.CubicAlg.pp_instance cc "pretty printing closure constraints" in
   let ccs  = apply ClosureAnalysis.CubicAlg.solve_instance cc "solving closure constraints" in
   let ()   = apply ClosureAnalysis.CubicAlg.pp_solution ccs "pretty printing solution to closure constraints" in
-  (*
+  *)
   let cfg  = apply ControlFlowGraph.generate_cfg_from_function (List.hd prog.Ast.program_decl) "generating cfg" in
   
+  let ()   = apply (SignAnalysis.analyze_program east) cfg "analyzing signs" in (*
   let ()   = apply (LivenessAnalysis.analyze_program prog) cfg "analyzing liveness" in
   let ()   = apply (ReachingDefinitionsAnalysis.analyze_program prog) cfg "analyzing reaching definitions" in
   let ()   = apply (AvailableExpressionsAnalysis.analyze_program prog) cfg "analyzing available expressions" in
   let ()   = apply (VeryBusyExpressionsAnalysis.analyze_program prog) cfg "analyzing very busy expressions" in
-  *)
+  
   let nast = apply NormalizeAst.normalize_program east "normalizing program" in
   let ()   = apply EnvironmentAstpp.pp_program nast "pretty printing normalized ast" in
     
   let ac   = apply AndersensAnalysis.generate_constraints nast "generating andersen constraints" in
   let ()   = apply AndersensAnalysis.C.pp_instance ac "pretty printing andersen constraints" in
   let acs  = apply AndersensAnalysis.C.solve_instance ac "solving andersen constraints" in
-  let ()   = apply AndersensAnalysis.C.pp_solution acs "pretty printing solution to andersen constraints" in
+  let ()   = apply AndersensAnalysis.C.pp_solution acs "pretty printing solution to andersen constraints" in *)
   ()
 
 let _ =

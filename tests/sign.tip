@@ -1,0 +1,11 @@
+main() {
+	var a,b,c;
+	a = 42;
+	b = 87;
+	if (input) {
+		c = a+b;
+	} else {
+		c = a-b;
+	}
+	return c;
+}

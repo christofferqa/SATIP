@@ -272,7 +272,7 @@ pointer_expression
 
 primary_expression
   :  INTEGER_LITERAL
-     { make_exp $startpos (Ast.IntConst $1) }
+     { make_exp $startpos (Ast.IntConst (int_of_string $1)) }
   |  NULL
      { make_exp $startpos (Ast.Null) }
   | identifier

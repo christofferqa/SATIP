@@ -1,5 +1,8 @@
 module CFG = ControlFlowGraph
 
+module StringSet =
+  Set.Make(String)
+
 module IdentifierSet =
   Set.Make(String)
 
@@ -19,9 +22,9 @@ let pp_exp_set_cmp_desc exp_set =
       else if (ExpSetCmpDesc.cardinal exp_set) = 1 then
         let exp = ExpSetCmpDesc.choose exp_set in
         Printf.printf "%s" (Astpp.exp_to_string exp)) in
-  Printf.printf "[";
+  Printf.printf "{";
   visit exp_set;
-  Printf.printf "]"
+  Printf.printf "}"
 
 module ExpSetCmpIdDesc =
   Set.Make(struct
@@ -42,9 +45,9 @@ let pp_exp_set_cmp_id_desc exp_set =
       else if (ExpSetCmpIdDesc.cardinal exp_set) = 1 then
         let exp = ExpSetCmpIdDesc.choose exp_set in
         Printf.printf "%s" (Astpp.exp_to_string exp)) in
-  Printf.printf "[";
+  Printf.printf "{";
   visit exp_set;
-  Printf.printf "]"
+  Printf.printf "}"
 
 module ExpSet =
   Set.Make(struct
@@ -62,9 +65,9 @@ let pp_exp_set exp_set =
       else if (ExpSet.cardinal exp_set) = 1 then
         let exp = ExpSet.choose exp_set in
         Printf.printf "%s" (Astpp.exp_to_string exp)) in
-  Printf.printf "[";
+  Printf.printf "{";
   visit exp_set;
-  Printf.printf "]"
+  Printf.printf "}"
 
 module StmSet =
   Set.Make(struct
@@ -82,15 +85,32 @@ let pp_stm_set stm_set =
       else if (StmSet.cardinal stm_set) = 1 then
         let stm = StmSet.choose stm_set in
         Printf.printf "%s" (Astpp.stm_to_string stm)) in
-  Printf.printf "[";
+  Printf.printf "{";
   visit stm_set;
-  Printf.printf "]"
+  Printf.printf "}"
 
 module CFGNodeSet =
   Set.Make (struct
     type t = CFG.node
     let compare n1 n2 = compare (CFG.get_node_id n1) (CFG.get_node_id n2)
   end)
+
+module StringMap =
+  Map.Make (String)
+
+let pp_string_map str_map value_to_string =
+  let rec visit =
+    (fun str_map ->
+      if (StringMap.cardinal str_map) >= 2 then
+        let (str, value) = StringMap.choose str_map in
+        let () = Printf.printf "%s -> %s, " str (value_to_string value) in
+        visit (StringMap.remove str str_map)
+      else if (StringMap.cardinal str_map) = 1 then
+        let (str, value) = StringMap.choose str_map in
+        Printf.printf "%s -> %s" str (value_to_string value)) in
+  Printf.printf "(";
+  visit str_map;
+  Printf.printf ")"
 
 module CFGNodeMap =
   Map.Make (struct

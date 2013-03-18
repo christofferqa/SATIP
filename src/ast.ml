@@ -27,7 +27,7 @@ type unop =
 
 type exp = { exp_pos: Lexing.position; exp: exp_desc; exp_id: int }
 and exp_desc =
-  | IntConst of string
+  | IntConst of int
   | Identifier of identifier
   | Binop of exp * binop * exp
   | Unop of unop * exp

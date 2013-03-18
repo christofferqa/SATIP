@@ -75,10 +75,10 @@ let dep (node: ControlFlowGraph.node) cfg =
     (match stm.Ast.stm with
     | Ast.VarAssignment (id, exp) ->
       (* [[v]] = (JOIN(v) union exps(E))!id, where ! means "kill" *)
-    CFGNodeSet.add node preds
+      CFGNodeSet.add node preds
     | Ast.Output exp ->
       (* [[v]] = JOIN(v) union exps(E) *)
-    CFGNodeSet.add node preds
+      CFGNodeSet.add node preds
     | _ ->
       (* [[v]] = JOIN(v) *)
       preds)

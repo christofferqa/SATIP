@@ -35,7 +35,7 @@ let binop_to_string (binop: Ast.binop): string =
 
 let rec exp_to_string (exp: Ast.exp): string =
   match exp.exp with
-  | IntConst c -> c
+  | IntConst c -> sprintf "%d" c
   | Identifier id -> Ast.i2s id
   | Binop (exp1, binop, exp2) -> (exp_to_string exp1) ^ (binop_to_string binop) ^ (exp_to_string exp2)
   | Unop (unop, exp') -> (unop_to_string unop) ^ (exp_to_string exp')
