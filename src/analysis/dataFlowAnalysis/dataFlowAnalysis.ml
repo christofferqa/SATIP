@@ -1,5 +1,6 @@
 open Structures
 module CFG = ControlFlowGraph
+module CFGNodeSet = Set.Make(SetUtils.CFGNode)
 module CFGNodeMap = Structures.CFGNodeMap
 
 module type OrderedType =
@@ -12,6 +13,9 @@ module type OrderedType =
 module Make(Ord: OrderedType) = struct
   module OrdSet = Set.Make(Ord)
   module OrdSetUtils = SetUtils.Make(Ord)
+  
+  module OrdMap = Map.Make(Ord)
+  module OrdMapUtils = MapUtils.Make(Ord)
   
   type strategy =
     | Forwards
@@ -58,12 +62,21 @@ module Make(Ord: OrderedType) = struct
       (fun acc node_pred -> OrdSet.inter acc (CFGNodeMap.find node_pred node_map))
       union (CFG.pred node cfg)
   
-  let pp_solution node_map =
+  let pp_set_solution node_map =
     CFGNodeMap.iter
       (fun node set -> 
         let node_content = CFG.get_node_content node in
         Printf.printf "%s  -> " (CFG.node_content_to_string node_content);
         OrdSetUtils.pp_set set;
+        print_newline())
+      node_map
+  
+  let pp_map_solution node_map value_to_string =
+    CFGNodeMap.iter
+      (fun node map -> 
+        let node_content = CFG.get_node_content node in
+        Printf.printf "%s  -> " (CFG.node_content_to_string node_content);
+        OrdMapUtils.pp_map map value_to_string;
         print_newline())
       node_map
 end

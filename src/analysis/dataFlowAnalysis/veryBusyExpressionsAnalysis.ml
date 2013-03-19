@@ -40,7 +40,7 @@ let make_lambda node cfg =
 
 let analyze_function func cfg =
   let fix = FixedPoint.run_worklist make_lambda (DFA.dep DFA.Backwards) (all_exps cfg) cfg in
-  DFA.pp_solution fix
+  DFA.pp_set_solution fix
 
 let analyze_program prog cfg =
   List.iter (fun func -> analyze_function func cfg) prog.Ast.program_decl

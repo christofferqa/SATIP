@@ -1,13 +1,10 @@
 open SignLattice
 module EAst = EnvironmentAst
 module CFG = ControlFlowGraph
-module StringMap = Map.Make(String)
-module DFA = DataFlowAnalysis.Make(
-  struct
-    type t = sign
-    let compare = compare
-    let to_string = sign_to_string
-  end)
+module DFA = DataFlowAnalysis.Make(SetUtils.Sign)
+module StringDFA = DataFlowAnalysis.Make(SetUtils.String)
+module StringMap = Map.Make(SetUtils.String)
+module StringMapUtils = MapUtils.Make(SetUtils.String)
 
 (* Relation to notes: node corresponds to v, node_pres to w and node_pred_constraint to [[w]]. *)
 let join node node_map cfg bottom =
@@ -53,15 +50,6 @@ let make_lambda bottom node cfg =
       (* [[v]] = JOIN(v) *)
       join_v)
 
-let pp_value node_map =
-  Structures.CFGNodeMap.iter
-    (fun node vars_map -> 
-      let node_content = CFG.get_node_content node in
-      Printf.printf "%s  -> " (CFG.node_content_to_string node_content);
-      Structures.pp_string_map vars_map sign_to_string;
-      print_newline())
-    node_map
-
 let analyze_function func cfg =
   let bottom =
     (* The map where each identifier is mapped to the bottom-element: *)
@@ -71,8 +59,8 @@ let analyze_function func cfg =
         | EnvironmentStructures.FunctionDecl _ -> acc
         | _ -> StringMap.add id Bottom acc)
       func.EAst.function_decl.EAst.function_env StringMap.empty in
-  let res = FixedPoint.run_worklist (make_lambda bottom) (DFA.dep DFA.Forwards) bottom cfg in
-  pp_value res
+  let fix = FixedPoint.run_worklist (make_lambda bottom) (DFA.dep DFA.Forwards) bottom cfg in
+  StringDFA.pp_map_solution fix sign_to_string
 
 let analyze_program prog cfg =
   List.iter (fun func -> analyze_function func cfg) prog.EAst.program_decl

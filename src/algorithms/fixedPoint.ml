@@ -1,4 +1,5 @@
-open Structures
+module CFGNodeSet = Set.Make(SetUtils.CFGNode)
+module CFGNodeMap = Structures.CFGNodeMap
 
 let run_worklist constraint_lambda dep_lambda bottom cfg =
   (* worklist: a set consisting of each CFG node,

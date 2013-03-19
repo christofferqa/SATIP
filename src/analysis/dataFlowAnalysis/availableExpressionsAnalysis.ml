@@ -83,7 +83,7 @@ let all_exps cfg =
 
 let analyze_function f cfg =
   let fix = FixedPoint.run_worklist make_lambda (DFA.dep DFA.Forwards) (all_exps cfg) cfg in
-  DFA.pp_solution fix
+  DFA.pp_set_solution fix
 
 let analyze_program prog cfg =
   List.iter (fun f -> analyze_function f cfg) prog.Ast.program_decl

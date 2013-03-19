@@ -18,7 +18,7 @@ module Instance = struct
 end
 
 module EAst = EnvironmentAst
-module ExpSet = ExpSetCmpIdDesc
+module ExpSet = Set.Make(SetUtils.ExpCmpId)
 module C = Cubic.Make(Instance)
 
 type info =

@@ -2,12 +2,10 @@ open ConstantPropagationLattice
 open Structures
 module EAst = EnvironmentAst
 module CFG = ControlFlowGraph
-module DFA = DataFlowAnalysis.Make(
-  struct
-    type t = const
-    let compare = compare
-    let to_string = const_to_string
-  end)
+module DFA = DataFlowAnalysis.Make(SetUtils.Const)
+module StringDFA = DataFlowAnalysis.Make(SetUtils.String)
+module StringMap = Map.Make(SetUtils.String)
+module StringMapUtils = MapUtils.Make(SetUtils.String)
 
 (* Relation to notes: node corresponds to v, node_pres to w and node_pred_constraint to [[w]]. *)
 let join node node_map cfg bottom =
@@ -53,15 +51,6 @@ let make_lambda bottom node cfg =
       (* [[v]] = JOIN(v) *)
       join_v)
 
-let pp_value node_map =
-  CFGNodeMap.iter
-    (fun node vars_map -> 
-      let node_content = CFG.get_node_content node in
-      Printf.printf "%s  -> " (CFG.node_content_to_string node_content);
-      Structures.pp_string_map vars_map const_to_string;
-      print_newline())
-    node_map
-
 let analyze_function func cfg =
   let bottom =
     StringMap.fold
@@ -71,7 +60,7 @@ let analyze_function func cfg =
         | _ -> StringMap.add id Bottom acc)
       func.EAst.function_decl.EAst.function_env StringMap.empty in
   let fix = FixedPoint.run_worklist (make_lambda bottom) (DFA.dep DFA.Forwards) bottom cfg in
-  pp_value fix
+  StringDFA.pp_map_solution fix const_to_string
 
 let analyze_program prog cfg =
   List.iter (fun f -> analyze_function f cfg) prog.EAst.program_decl

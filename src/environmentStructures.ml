@@ -7,5 +7,5 @@ type decl =
   | FormalDecl of Ast.function_decl
   | LocalDecl of Ast.stm
 
-module Env = Map.Make (String)
+module Env = Map.Make(SetUtils.String)
 type env = decl Env.t
