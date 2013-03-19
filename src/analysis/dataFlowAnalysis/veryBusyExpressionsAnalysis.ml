@@ -1,10 +1,9 @@
 open Structures
-module DFA = DataFlowAnalysis
+module DFA = DataFlowAnalysis.Make(SetUtils.ExpCmpDesc)
 module CFG = ControlFlowGraph
-module ExpSet = ExpSetCmpDesc
+module ExpSet = Set.Make(SetUtils.ExpCmpDesc)
 
 let exps = AvailableExpressionsAnalysis.exps
-let pp_value = AvailableExpressionsAnalysis.pp_value
 let all_exps = AvailableExpressionsAnalysis.all_exps
 
 let make_lambda node cfg =
@@ -40,8 +39,8 @@ let make_lambda node cfg =
       DFA.join_backwards_must node node_map cfg)
 
 let analyze_function func cfg =
-  let res = FixedPoint.run_worklist make_lambda (DFA.dep DFA.Backwards) (all_exps cfg) cfg in
-  pp_value res
+  let fix = FixedPoint.run_worklist make_lambda (DFA.dep DFA.Backwards) (all_exps cfg) cfg in
+  DFA.pp_solution fix
 
 let analyze_program prog cfg =
   List.iter (fun func -> analyze_function func cfg) prog.Ast.program_decl

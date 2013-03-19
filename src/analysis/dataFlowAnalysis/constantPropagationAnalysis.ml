@@ -1,8 +1,13 @@
 open ConstantPropagationLattice
 open Structures
-module CFG = ControlFlowGraph
-module DFA = DataFlowAnalysis
 module EAst = EnvironmentAst
+module CFG = ControlFlowGraph
+module DFA = DataFlowAnalysis.Make(
+  struct
+    type t = const
+    let compare = compare
+    let to_string = const_to_string
+  end)
 
 (* Relation to notes: node corresponds to v, node_pres to w and node_pred_constraint to [[w]]. *)
 let join node node_map cfg bottom =
@@ -65,8 +70,8 @@ let analyze_function func cfg =
         | EnvironmentStructures.FunctionDecl _ -> acc
         | _ -> StringMap.add id Bottom acc)
       func.EAst.function_decl.EAst.function_env StringMap.empty in
-  let res = FixedPoint.run_worklist (make_lambda bottom) (DFA.dep DFA.Forwards) bottom cfg in
-  pp_value res
+  let fix = FixedPoint.run_worklist (make_lambda bottom) (DFA.dep DFA.Forwards) bottom cfg in
+  pp_value fix
 
 let analyze_program prog cfg =
   List.iter (fun f -> analyze_function f cfg) prog.EAst.program_decl

@@ -1,7 +1,8 @@
 open Structures
-module DFA = DataFlowAnalysis
 module CFG = ControlFlowGraph
-module ExpSet = ExpSetCmpDesc
+module ExpSetUtils = SetUtils.Make(SetUtils.ExpCmpDesc)
+module DFA = DataFlowAnalysis.Make(SetUtils.ExpCmpDesc)
+module ExpSet = Set.Make(SetUtils.ExpCmpDesc)
 
 let rec exps e =
   let filter_input_exps = (fun exp_set -> ExpSet.filter (fun exp -> not (Ast.exp_contains exp Ast.Input)) exp_set) in
@@ -61,15 +62,6 @@ let make_lambda node cfg =
       (* [[v]] = JOIN(v) *)
       DFA.join_forwards_must node node_map cfg)
 
-let pp_value node_map =
-  CFGNodeMap.iter
-    (fun node exp_set -> 
-      let node_content = ControlFlowGraph.get_node_content node in
-      Printf.printf "%s  -> " (ControlFlowGraph.node_content_to_string node_content);
-      Structures.pp_exp_set_cmp_desc exp_set;
-      print_newline())
-    node_map
-
 let all_exps cfg =
   ControlFlowGraph.fold
     (fun node acc ->
@@ -90,8 +82,8 @@ let all_exps cfg =
     ExpSet.empty cfg
 
 let analyze_function f cfg =
-  let res = FixedPoint.run_worklist make_lambda (DFA.dep DFA.Forwards) (all_exps cfg) cfg in
-  pp_value res
+  let fix = FixedPoint.run_worklist make_lambda (DFA.dep DFA.Forwards) (all_exps cfg) cfg in
+  DFA.pp_solution fix
 
 let analyze_program prog cfg =
   List.iter (fun f -> analyze_function f cfg) prog.Ast.program_decl

@@ -1,14 +1,19 @@
 open SignLattice
-open Structures
-module CFG = ControlFlowGraph
-module DFA = DataFlowAnalysis
 module EAst = EnvironmentAst
+module CFG = ControlFlowGraph
+module StringMap = Map.Make(String)
+module DFA = DataFlowAnalysis.Make(
+  struct
+    type t = sign
+    let compare = compare
+    let to_string = sign_to_string
+  end)
 
 (* Relation to notes: node corresponds to v, node_pres to w and node_pred_constraint to [[w]]. *)
 let join node node_map cfg bottom =
   List.fold_left
     (fun acc node_pred ->
-      let node_pred_constraint = CFGNodeMap.find node_pred node_map in
+      let node_pred_constraint = Structures.CFGNodeMap.find node_pred node_map in
       StringMap.merge
         (fun var sign1 sign2 ->
           match sign1, sign2 with
@@ -49,10 +54,10 @@ let make_lambda bottom node cfg =
       join_v)
 
 let pp_value node_map =
-  CFGNodeMap.iter
+  Structures.CFGNodeMap.iter
     (fun node vars_map -> 
       let node_content = CFG.get_node_content node in
-      Printf.printf "%s  -> " (ControlFlowGraph.node_content_to_string node_content);
+      Printf.printf "%s  -> " (CFG.node_content_to_string node_content);
       Structures.pp_string_map vars_map sign_to_string;
       print_newline())
     node_map

@@ -1,6 +1,7 @@
-open Structures
 module CFG = ControlFlowGraph
-module DFA = DataFlowAnalysis
+module DFA = DataFlowAnalysis.Make(SetUtils.Stm)
+module StmSetUtils = SetUtils.Make(SetUtils.Stm)
+module StmSet = Set.Make(SetUtils.Stm)
 
 let make_lambda node cfg =
   (fun node_map ->
@@ -28,18 +29,9 @@ let make_lambda node cfg =
       (* [[v]] = JOIN(v) *)
       DFA.join_forwards_may node node_map cfg)
 
-let pp_value node_map =
-  CFGNodeMap.iter
-    (fun node stm_set -> 
-      let node_content = CFG.get_node_content node in
-      Printf.printf "%s  -> " (CFG.node_content_to_string node_content);
-      Structures.pp_stm_set stm_set;
-      print_newline())
-    node_map
-
 let analyze_function f cfg =
-  let res = FixedPoint.run_worklist make_lambda (DFA.dep DFA.Forwards) StmSet.empty cfg in
-  pp_value res
+  let fix = FixedPoint.run_worklist make_lambda (DFA.dep DFA.Forwards) StmSet.empty cfg in
+  DFA.pp_solution fix
 
 let analyze_program prog cfg =
   List.iter (fun f -> analyze_function f cfg) prog.Ast.program_decl

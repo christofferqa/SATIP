@@ -20,6 +20,12 @@ let pp_string_set str_set =
   visit str_set;
   Printf.printf "}"
 
+module SetCmpDesc =
+  struct
+    type t = Ast.exp
+    let compare e1 e2 = compare (Astpp.exp_to_string e1) (Astpp.exp_to_string e2)
+  end
+
 module ExpSetCmpDesc =
   Set.Make(struct
     type t = Ast.exp

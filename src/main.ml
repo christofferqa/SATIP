@@ -77,7 +77,7 @@ let compile filename =
   (try apply (AvailableExpressionsAnalysis.analyze_program prog) cfg "analyzing available expressions" with | Exit -> ());
   (try apply (VeryBusyExpressionsAnalysis.analyze_program prog) cfg "analyzing very busy expressions" with | Exit -> ());
   
-  (* let nast = apply NormalizeAst.normalize_program east "normalizing program" in
+  (*let nast = apply NormalizeAst.normalize_program east "normalizing program" in
   let ()   = apply EnvironmentAstpp.pp_program nast "pretty printing normalized ast" in
     
   let ac   = apply AndersensAnalysis.generate_constraints nast "generating andersen constraints" in
