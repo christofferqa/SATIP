@@ -1,6 +1,8 @@
 type content =
 | SimpleStm of Ast.stm
 | ExpJump of Ast.exp
+| CallNode of Ast.exp * (int * content)
+| AfterCallNode of Ast.exp
 | Empty
 | Entry
 | Exit
@@ -9,17 +11,20 @@ let node_content_to_string node_content =
   match node_content with
   | SimpleStm stm -> Printf.sprintf "%s" (Astpp.stm_to_string stm)
   | ExpJump e -> Printf.sprintf "%s" (Astpp.exp_to_string e)
+  | CallNode (e, _) -> Printf.sprintf "_ = %s" (Astpp.exp_to_string e)
+  | AfterCallNode e -> Printf.sprintf "%s = _" (Astpp.exp_to_string e)
   | Empty -> Printf.sprintf "%s" "Empty"
   | Entry -> Printf.sprintf "%s" "Entry"
   | Exit -> Printf.sprintf "%s" "Exit"
 
-module NodeContent : DirectedGraph.T with type t = content = struct
-  type t = content
-  let pp = node_content_to_string
-end
+module NodeContent : DirectedGraph.T with type t = content =
+  struct
+    type t = content
+    let pp = node_content_to_string
+  end
     
 include DirectedGraph.Make(NodeContent)
-    
+
 let source_pred g node = List.length (pred node g) = 0
 let sink_pred g node = List.length (succ node g) = 0
   

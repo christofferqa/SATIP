@@ -4,12 +4,11 @@ module type T =
     val pp : t -> string
   end
     
-module type Graph =
-sig
+module type Graph = sig
   type t
   type c
   type node
-
+  
   val make_node : c -> node
   val get_node_content : node -> c
   val get_node_id : node -> int

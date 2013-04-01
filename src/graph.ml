@@ -8,14 +8,13 @@ module Make(NodeContent: NodeType) = struct
    | Empty of int option
    | Node of NodeContent.t
   
-  module NodeOrder  = 
-  struct
+  module NodeOrder = struct
     type t = node
     let compare = (fun n1 n2 -> if n1 == n2 then 0 else 1)
   end
-  
   module NodeSet = Set.Make(NodeOrder)
   module NodeMap = Map.Make(NodeOrder)
+  
   type transition_function = NodeSet.t NodeMap.t
   
   type cfg = 

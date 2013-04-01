@@ -68,13 +68,14 @@ let compile filename =
   let ()   = apply ClosureAnalysis.CubicAlg.pp_solution ccs "pretty printing solution to closure constraints" in
   
   let cfg  = apply ControlFlowGraph.generate_cfg_from_function (List.hd prog.Ast.program_decl) "generating cfg" in
-  
+  (*
   (try apply (SignAnalysis.analyze_program east) cfg "analyzing signs" with | Exit -> ());
   (try apply (LivenessAnalysis.analyze_program prog) cfg "analyzing liveness" with | Exit -> ());
   (try apply (InitializedVariablesAnalysis.analyze_program prog) cfg "analyzing initialized variables" with | Exit -> ());
   (try apply (ConstantPropagationAnalysis.analyze_program east) cfg "analyzing constant propagation" with | Exit -> ());
   (try apply (ReachingDefinitionsAnalysis.analyze_program prog) cfg "analyzing reaching definitions" with | Exit -> ());
   (try apply (AvailableExpressionsAnalysis.analyze_program prog) cfg "analyzing available expressions" with | Exit -> ());
+  *)
   (try apply (VeryBusyExpressionsAnalysis.analyze_program prog) cfg "analyzing very busy expressions" with | Exit -> ());
   
   let nast = apply NormalizeAst.normalize_program east "normalizing program" in
