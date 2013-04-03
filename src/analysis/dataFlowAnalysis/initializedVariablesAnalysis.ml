@@ -1,4 +1,3 @@
-module NodeMap = Structures.CFGNodeMap
 module CFG = ControlFlowGraph
 module DFA = DataFlowAnalysis.Make(SetUtils.String)
 module StringSetUtils = SetUtils.Make(SetUtils.String)
@@ -23,7 +22,7 @@ let rec vars e =
 let make_lambda node cfg =
   (fun node_map ->
     match CFG.get_node_content node with
-    | CFG.Entry ->
+    | CFG.Entry _ ->
       (* [[entry]] = {} *)
       StringSet.empty
     | CFG.SimpleStm stm ->

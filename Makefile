@@ -1,6 +1,6 @@
 # Directories
 SRC_DIR := src
-INCL_DIRS := src,src/algorithms,src/analysis/controlFlowAnalysis,src/analysis/dataFlowAnalysis,src/analysis/typeAnalysis,src/analysis/pointerAnalysis,src/utils
+INCL_DIRS := src,src/algorithms,src/analysis/controlFlowAnalysis,src/analysis/dataFlowAnalysis,src/analysis/dataFlowAnalysis/interprocedural,src/analysis/typeAnalysis,src/analysis/pointerAnalysis,src/utils
 EXCL_DIRS := lib,tests
 BLD_DIR := _build
 

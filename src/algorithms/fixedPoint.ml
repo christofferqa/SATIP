@@ -1,5 +1,6 @@
-module CFGNodeSet = Set.Make(SetUtils.CFGNode)
-module CFGNodeMap = Structures.CFGNodeMap
+module CFG = ControlFlowGraph
+module CFGNodeSet = Set.Make(ControlFlowGraph.CFGNode)
+module CFGNodeMap = Map.Make(ControlFlowGraph.CFGNode)
 
 let run_worklist constraint_lambda dep_lambda bottom cfg =
   (* worklist: a set consisting of each CFG node,
@@ -7,7 +8,7 @@ let run_worklist constraint_lambda dep_lambda bottom cfg =
      deps: a map from CFG nodes to a set of CFG nodes the corresponding node depends on,
      bottom_map: a map from CFG nodes to the bottom element of the lattice *)
   let (worklist, lambda_map, dep_map, bottom_map) = 
-    ControlFlowGraph.fold
+    CFG.fold
       (fun node (worklist, lambda_map, dep_map, bottom_map) ->
         let dep_map =
           if not (CFGNodeMap.mem node dep_map)

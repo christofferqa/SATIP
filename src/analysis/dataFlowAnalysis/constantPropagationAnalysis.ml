@@ -1,11 +1,11 @@
 open ConstantPropagationLattice
-open Structures
 module EAst = EnvironmentAst
 module CFG = ControlFlowGraph
 module DFA = DataFlowAnalysis.Make(SetUtils.Const)
 module StringDFA = DataFlowAnalysis.Make(SetUtils.String)
 module StringMap = Map.Make(SetUtils.String)
 module StringMapUtils = MapUtils.Make(SetUtils.String)
+module CFGNodeMap = Map.Make(ControlFlowGraph.CFGNode)
 
 (* Relation to notes: node corresponds to v, node_pres to w and node_pred_constraint to [[w]]. *)
 let join node node_map cfg bottom =

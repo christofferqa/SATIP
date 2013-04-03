@@ -1,7 +1,6 @@
-open Structures
 module CFG = ControlFlowGraph
-module CFGNodeSet = Set.Make(SetUtils.CFGNode)
-module CFGNodeMap = Structures.CFGNodeMap
+module CFGNodeSet = Set.Make(ControlFlowGraph.CFGNode)
+module CFGNodeMap = Map.Make(ControlFlowGraph.CFGNode)
 
 module type OrderedType =
   sig
@@ -24,8 +23,8 @@ module Make(Ord: OrderedType) = struct
   let dep strategy node cfg =
     let nodes =
       match strategy with
-      | Forwards -> CFG.pred node cfg
-      | Backwards -> CFG.succ node cfg in
+      | Forwards -> CFG.pred_all node cfg
+      | Backwards -> CFG.succ_all node cfg in
     List.fold_left
       (fun acc node -> CFGNodeSet.add node acc)
       CFGNodeSet.empty nodes

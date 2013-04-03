@@ -1,4 +1,3 @@
-open Structures
 module CFG = ControlFlowGraph
 module ExpSetUtils = SetUtils.Make(SetUtils.ExpCmpDesc)
 module DFA = DataFlowAnalysis.Make(SetUtils.ExpCmpDesc)
@@ -29,7 +28,7 @@ let rec exps e =
 let make_lambda node cfg =
   (fun node_map ->
     match CFG.get_node_content node with
-    | CFG.Entry ->
+    | CFG.Entry _ ->
       (* [[entry]] = {} *)
       ExpSet.empty
     | CFG.ExpJump exp ->

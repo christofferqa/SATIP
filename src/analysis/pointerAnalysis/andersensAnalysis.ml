@@ -1,4 +1,3 @@
-open Structures
 open EnvironmentStructures
 
 module Instance = struct

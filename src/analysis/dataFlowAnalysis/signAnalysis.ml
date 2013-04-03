@@ -5,12 +5,13 @@ module DFA = DataFlowAnalysis.Make(SetUtils.Sign)
 module StringDFA = DataFlowAnalysis.Make(SetUtils.String)
 module StringMap = Map.Make(SetUtils.String)
 module StringMapUtils = MapUtils.Make(SetUtils.String)
+module CFGNodeMap = Map.Make(ControlFlowGraph.CFGNode)
 
 (* Relation to notes: node corresponds to v, node_pres to w and node_pred_constraint to [[w]]. *)
 let join node node_map cfg bottom =
   List.fold_left
     (fun acc node_pred ->
-      let node_pred_constraint = Structures.CFGNodeMap.find node_pred node_map in
+      let node_pred_constraint = CFGNodeMap.find node_pred node_map in
       StringMap.merge
         (fun var sign1 sign2 ->
           match sign1, sign2 with

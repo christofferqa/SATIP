@@ -1,5 +1,3 @@
-module CFG = ControlFlowGraph
-
 module Const =
   struct
     type t = ConstantPropagationLattice.const
@@ -42,12 +40,6 @@ module Stm =
     type t = Ast.stm
     let compare e1 e2 = compare e1.Ast.stm_id e2.Ast.stm_id
     let to_string = Astpp.stm_to_string
-  end
-
-module CFGNode =
-  struct
-    type t = CFG.node
-    let compare n1 n2 = compare (CFG.get_node_id n1) (CFG.get_node_id n2)
   end
 
 module type OrderedType =

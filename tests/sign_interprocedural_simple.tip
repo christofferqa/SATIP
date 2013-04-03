@@ -1,0 +1,9 @@
+id(x) {
+	return x;
+}
+
+main() {
+	var a;
+	a = id(0);
+	return a;
+}

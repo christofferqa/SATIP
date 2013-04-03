@@ -5,9 +5,19 @@ module type T =
   end
     
 module type Graph = sig
-  type t
-  type c
-  type node
+  module NodeOrder : sig
+    type t
+    val compare : t -> t -> int
+  end
+  module NodeSet : Set.S
+  module NodeMap : Map.S
+  
+  type t =
+    { nodes : NodeSet.t;
+      succ  : (node list) NodeMap.t;
+      pred  : (node list) NodeMap.t; }
+  and c
+  and node
   
   val make_node : c -> node
   val get_node_content : node -> c
@@ -21,6 +31,7 @@ module type Graph = sig
   val connect_many : node list -> node list -> t -> t
   val combine : t -> t -> t
   val select_nodes : (node -> bool) -> t -> node list
+  val lookup : node -> (node list) NodeMap.t -> node list
   val succ : node -> t -> node list
   val pred : node -> t -> node list
   val find_cycles : t -> node list list
@@ -149,8 +160,8 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
       pred_nodes 
       succ_nodes 
       { nodes = nodes';
-	succ  = (NodeMap.remove node succ');
-	pred  = (NodeMap.remove node pred') }
+        succ  = (NodeMap.remove node succ');
+        pred  = (NodeMap.remove node pred') }
 
   let remove_many nodes graph = 
     List.fold_left (fun g n -> remove n g) graph nodes

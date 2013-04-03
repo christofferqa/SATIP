@@ -1,0 +1,11 @@
+id(result) {
+	return result;
+}
+
+main() {
+	var a, b, c;
+	a = id(0);
+	b = id(42);
+	c = a+b;
+	return c;
+}
