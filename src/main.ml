@@ -71,7 +71,7 @@ let compile filename =
   let ()   = apply ControlFlowGraph.pp cfg "pretty printing cfg" in
   let icfg = apply ControlFlowGraph.generate_cfg_from_program prog "generating interprocedural cfg" in
   let ()   = apply ControlFlowGraph.pp icfg "pretty printing interprocedural cfg" in
-  
+  (*
   (try apply (SignAnalysis.analyze_program east) cfg "analyzing signs" with | Exit -> ());
   (try apply (LivenessAnalysis.analyze_program prog) cfg "analyzing liveness" with | Exit -> ());
   (try apply (InitializedVariablesAnalysis.analyze_program prog) cfg "analyzing initialized variables" with | Exit -> ());
@@ -80,7 +80,9 @@ let compile filename =
   (try apply (AvailableExpressionsAnalysis.analyze_program prog) cfg "analyzing available expressions" with | Exit -> ());
   (try apply (VeryBusyExpressionsAnalysis.analyze_program prog) cfg "analyzing very busy expressions" with | Exit -> ());
   (try apply (InterproceduralContextInsensitiveSignAnalysis.analyze_program east) icfg "analyzing signs interprocedurally" with | Exit -> ());
-  
+  *)
+  (try apply (InterproceduralContextSensitiveSignAnalysis.analyze_program east) icfg "analyzing signs interprocedurally" with | Exit -> ());
+  (*
   let nast = apply NormalizeAst.normalize_program east "normalizing program" in
   let ()   = apply EnvironmentAstpp.pp_program nast "pretty printing normalized ast" in
     
@@ -88,6 +90,7 @@ let compile filename =
   let ()   = apply AndersensAnalysis.C.pp_instance ac "pretty printing andersen constraints" in
   let acs  = apply AndersensAnalysis.C.solve_instance ac "solving andersen constraints" in
   let ()   = apply AndersensAnalysis.C.pp_solution acs "pretty printing solution to andersen constraints" in
+  *)
   ()
 
 let _ =

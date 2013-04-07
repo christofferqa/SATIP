@@ -4,6 +4,7 @@ id(result) {
 
 main() {
 	var a, b, c;
+	a = 0;
 	a = id(0);
 	b = id(42);
 	c = a+b;

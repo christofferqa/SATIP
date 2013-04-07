@@ -4,7 +4,6 @@ module CFG = ControlFlowGraph
 module DFA = DataFlowAnalysis.Make(SetUtils.Sign)
 module StringDFA = DataFlowAnalysis.Make(SetUtils.String)
 module StringMap = Map.Make(SetUtils.String)
-module StringMapUtils = MapUtils.Make(SetUtils.String)
 module CFGNodeMap = Map.Make(ControlFlowGraph.CFGNode)
 
 (* Relation to notes: node corresponds to v, node_pres to w and node_pred_constraint to [[w]]. *)
@@ -18,7 +17,7 @@ let join node node_map cfg bottom =
           | Some sign1, Some sign2 -> Some (least_upper_bound sign1 sign2)
           | Some sign1, None -> Some sign1
           | None, Some sign2 -> Some sign2
-          | _, _ -> Error.phase "Sign Analysis" "Internal error: StringMap.merge should not give None, None.")
+          | _, _ -> None)
         acc node_pred_constraint)
     bottom (CFG.pred node cfg)
 
