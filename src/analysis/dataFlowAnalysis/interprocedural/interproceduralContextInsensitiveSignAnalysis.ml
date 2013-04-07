@@ -1,6 +1,7 @@
 open SignLattice
 module EAst = EnvironmentAst
 module CFG = ControlFlowGraph
+module CFGUtils = ControlFlowGraphUtils
 module DFA = DataFlowAnalysis.Make(SetUtils.Sign)
 module StringDFA = DataFlowAnalysis.Make(SetUtils.String)
 module StringMap = Map.Make(SetUtils.String)
@@ -50,7 +51,7 @@ let make_lambda bottom node cfg =
         join_v)
     | CFG.Entry func ->
       (* [[v]] = LUB (bottom[b_1 -> eval([[w]], E_1),...]) for w in pred(v) *)
-      let bs = func.Ast.function_decl.Ast.function_formals in
+      let bs = AstUtils.get_function_formals func in
       List.fold_left
         (fun acc w ->
           let w_constraint = CFGNodeMap.find w node_map in
