@@ -62,10 +62,6 @@ let join update_func node cfg node_map =
         w_value acc)
     StringMapMap.empty ws (* use the empty map as accumulator instead of bottom; this ensures that things are computed lazily. *)
 
-let make_lambda_other =
-  join
-    (fun p w_p_value -> w_p_value)
-
 let make_lambda bottom_formals_sign bottom_vars_sign node cfg node_map =
   match CFG.get_node_content node with
   | CFG.SimpleStm stm ->
@@ -84,13 +80,15 @@ let make_lambda bottom_formals_sign bottom_vars_sign node cfg node_map =
         node cfg node_map
       
     | _ ->
-      make_lambda_other node cfg node_map)
+      join (fun p w_p_value -> w_p_value) node cfg node_map)
       
   | CFG.Entry func ->
-    (* Todo: Don't hardcode the following to the main function, but to the last declared function *)
+    (* Todo: Don't hardcode the following to the main function, but to the last declared function. *)
     if func.Ast.function_decl.Ast.function_name.Ast.identifier = "main" then
       StringMapMap.add bottom_formals_sign bottom_vars_sign StringMapMap.empty
     else
+      (* Only compute signs of variables for a function in a given context, *)
+      (* if that function is actually called with that context! *)
       let bs = AstUtils.get_function_formals func in
       List.fold_left
         (fun acc w ->
@@ -105,6 +103,9 @@ let make_lambda bottom_formals_sign bottom_vars_sign node cfg node_map =
                     let eval_res = eval w_value_p e in
                     (StringMap.add b.Ast.identifier eval_res acc_formals_sign, StringMap.add b.Ast.identifier eval_res acc_vars_sign))
                   (bottom_formals_sign, bottom_vars_sign) bs es in
+              
+              (* By adding updated_bottom_formals_sign as a context, the analysis (i.e. the other constraint rules) *)
+              (* will compute signs of variables for this particular context. *)
               StringMapMap.add updated_bottom_formals_sign updated_bottom_vars_sign acc)
             w_value acc)
         StringMapMap.empty (CFG.call_nodes node cfg)
@@ -118,8 +119,8 @@ let make_lambda bottom_formals_sign bottom_vars_sign node cfg node_map =
     let bs = CFGUtils.get_function_formals w in
     let es = AstUtils.get_invocation_arguments exp in
     
-    (* Exploit that an after call node only have one predecessor, by using StringMapMap.mapi instead *)
-    (* of StringMapMap.fold (as the other cases do). *)
+    (* Exploit that an after call node only have one predecessor, by using StringMapMap.mapi *)
+    (* instead of StringMapMap.fold (as the other cases do). *)
     StringMapMap.mapi
       (fun p _ ->
         let v'_p_value = StringMapMap.find p v'_value in
@@ -136,7 +137,7 @@ let make_lambda bottom_formals_sign bottom_vars_sign node cfg node_map =
       v'_value
     
   | _ ->
-    make_lambda_other node cfg node_map
+    join (fun p w_p_value -> w_p_value) node cfg node_map
 
 let analyze_program prog cfg =
   let (bottom_formals_sign, bottom_vars_sign) =
