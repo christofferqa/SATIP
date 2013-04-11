@@ -102,11 +102,11 @@ generate_targets_from_stms stms (target_set, taken_addresses_set) =
   * Functions to generate constraints.
   *)
 
-let generate_constraints_from_identifier id id_exp instance info =
+let generate_constraints_from_identifier id instance info =
   (* a reference to a constrant function generates the constraint: {f} subset [[f]] *)
   if StringMap.mem id.Ast.identifier info.func_env then
     match StringMap.find id.Ast.identifier info.func_env with
-    | EAst.FunctionDecl _ -> { instance with C.constraints = C.TokenInclusion ([id_exp], id_exp) :: instance.C.constraints }
+    | EAst.FunctionDecl _ -> { instance with C.constraints = C.TokenInclusion ([Ast.i2exp id], Ast.i2exp id) :: instance.C.constraints }
     | _ -> instance
   else
     instance
@@ -124,7 +124,7 @@ let rec generate_constraints_from_exp exp instance info =
   | Ast.Unop (unop, exp) -> generate_constraints_from_exp exp instance info
   | Ast.Identifier id ->
     (* a reference to a constrant function generates the constraint: {f} subset [[f]] *)
-    generate_constraints_from_identifier id exp instance info
+    generate_constraints_from_identifier id instance info
 
 and
 
@@ -132,15 +132,6 @@ generate_constraints_from_exps exps instance info =
   List.fold_right
     (fun exp instance -> generate_constraints_from_exp exp instance info)
     exps instance
-
-let rec generate_constraints_invocation_exp_formals function_name exp arguments formals instance =
-  match arguments, formals with
-  | [], [] -> instance
-  | argument :: arguments', formal :: formals' ->
-    let instance = { instance with C.constraints = C.ConditionalInclusion (function_name, exp, argument, Ast.i2exp formal) :: instance.C.constraints } in
-    generate_constraints_invocation_exp_formals exp function_name arguments' formals' instance
-  | _ ->
-    raise (Failure "Expected the argument and formal list to be of the same length.")
 
 let rec generate_constraints_from_stm stm instance info =
   match stm.Ast.stm with
@@ -178,7 +169,7 @@ let rec generate_constraints_from_stm stm instance info =
      
     | Ast.FunctionInvocation (id2, exps) ->
       (* a reference to a constant function generates the constraint: {f} subset [[f]] *)
-      let instance = generate_constraints_from_identifier id2 exp instance info in
+      let instance = generate_constraints_from_identifier id2 instance info in
       
       (* function calls (id_2)(a_1,...a_n) generates the constraint f in [[id_2]] => [[a_1]] subset [[x_1]] /\ ... /\ [[a_n]] subset [[x_n]] /\ [[id]] subset [[id_1]], for ... *)
       let instance =
@@ -192,10 +183,12 @@ let rec generate_constraints_from_stm stm instance info =
               let instance = { instance with C.constraints = C.ConditionalInclusion (function_name, Ast.i2exp id2, return_exp, Ast.i2exp id1) :: instance.C.constraints } in
               
               (* The constraints for the formals *)
-              generate_constraints_invocation_exp_formals
-                function_name (Ast.i2exp id2) exps func.EAst.function_decl.EAst.function_formals instance
+              List.fold_left2
+                (fun acc formal argument ->
+                  { instance with C.constraints = C.ConditionalInclusion (function_name, Ast.i2exp id2, argument, Ast.i2exp formal) :: instance.C.constraints })
+                instance func.EAst.function_decl.EAst.function_formals exps
             with
-            | Failure _ -> instance)
+            | Invalid_argument _ -> instance)
           info.funcs instance in
       
       (* no need to check exps for constraints, as functions invocations has been normalized! *)
