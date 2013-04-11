@@ -1,3 +1,7 @@
+(**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com
+  *)
+
 type const =
   | Bottom
   | IntConst of int

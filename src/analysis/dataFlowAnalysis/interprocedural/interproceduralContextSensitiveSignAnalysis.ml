@@ -1,3 +1,15 @@
+(**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com
+  *
+  * An interprocedural context sensitive sign analysis, that uses the
+  * functional approach. The lattice used is (Formals -> Sign) -> (Vars -> Sign),
+  * where Formals is the union of the formal arguments of all functions.
+  * 
+  * The analysis computes the answers lazily, i.e. it only computes the sign
+  * of variables in a function for a given context, if the function is actually
+  * called with that particular context.
+  *)
+
 open SignLattice
 
 module EAst = EnvironmentAst
@@ -146,9 +158,9 @@ let analyze_program prog cfg =
         StringMap.fold
           (fun id decl (acc_formals_sign, acc_vars_sign) ->
             match decl with
-            | EnvironmentStructures.FunctionDecl _ -> (acc_formals_sign, acc_vars_sign)
-            | EnvironmentStructures.FormalDecl _ -> (StringMap.add id Bottom acc_formals_sign, StringMap.add id Bottom acc_vars_sign)
-            | EnvironmentStructures.LocalDecl _ -> (acc_formals_sign, StringMap.add id Bottom acc_vars_sign))
+            | EnvironmentAst.FunctionDecl _ -> (acc_formals_sign, acc_vars_sign)
+            | EnvironmentAst.FormalDecl _ -> (StringMap.add id Bottom acc_formals_sign, StringMap.add id Bottom acc_vars_sign)
+            | EnvironmentAst.LocalDecl _ -> (acc_formals_sign, StringMap.add id Bottom acc_vars_sign))
           func.EAst.function_decl.EAst.function_env acc)
       (StringMap.empty, StringMap.empty) prog.EAst.program_decl in
   

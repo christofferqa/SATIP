@@ -1,3 +1,7 @@
+(**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com
+  *)
+
 module CFG = ControlFlowGraph
 module ExpSetUtils = SetUtils.Make(SetUtils.ExpCmpDesc)
 module DFA = DataFlowAnalysis.Make(SetUtils.ExpCmpDesc)

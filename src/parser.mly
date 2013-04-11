@@ -1,19 +1,18 @@
-/* File parser.mly */
 %{
   let make_identifier pos i =
     { Ast.identifier_pos = pos;
       Ast.identifier = i;
-      Ast.identifier_id = Utils.new_id !(Utils.id) }
+      Ast.identifier_id = Utils.make_id () }
 
   let make_exp pos e =
     { Ast.exp_pos = pos;
       Ast.exp = e;
-      Ast.exp_id = Utils.new_id !(Utils.id) }
+      Ast.exp_id = Utils.make_id () }
   
   let make_stm pos s =
     { Ast.stm_pos = pos;
       Ast.stm = s;
-      Ast.stm_id = Utils.new_id !(Utils.id) }
+      Ast.stm_id = Utils.make_id () }
 
   let make_function pos decl =
     { Ast.function_decl_pos = pos;

@@ -1,24 +1,21 @@
 (**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com.
+  *
   * Pretty printer for the AST.
   *)
 
-open Printf
 open EnvironmentAst
 
 (**
-  * Functions
+  * Functions:
   *)
 
 let rec pp_function func =
-  Astpp.pp_identifier func.function_name;
-  printf "(";
-  Astpp.pp_identifiers func.function_formals;
-  printf ") {";
-  print_newline();
-  Astpp.pp_stms func.function_body "  ";
-  print_newline();
-  printf "}";
-  print_newline()
+  Printf.printf
+    "%s(%s) {\n%s\n}\n"
+    (Astpp.identifier_to_string func.function_name)
+    (Astpp.identifiers_to_string func.function_formals)
+    (Astpp.stms_to_string func.function_body "  ")
 
 and
 
@@ -37,5 +34,5 @@ pp_functions funcs =
   * Programs
   *)
 
-let rec pp_program prog =
+let pp_program prog =
   pp_functions prog.program_decl

@@ -1,3 +1,7 @@
+(**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com
+  *)
+
 module Token = struct
   type t = Ast.identifier
   let compare = (fun i1 i2 -> compare i1.Ast.identifier_pos i2.Ast.identifier_pos)

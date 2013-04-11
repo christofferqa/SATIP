@@ -1,4 +1,6 @@
 (**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com
+  *
   * This phase generates a bunch of type constraints, which is solved using the unification algorithm by
   * the TypeConstraintSolver phase.
   *)
@@ -13,7 +15,7 @@ module EAst = EnvironmentAst
   * Functions to generate type constraints:
   *)
 
-let rec generate_type_constraints_from_exp (exp: EAst.exp) (constraints: T.type_constraint list): T.type_constraint list =
+let rec generate_type_constraints_from_exp exp (constraints: T.type_constraint list): T.type_constraint list =
   match exp.Ast.exp with
   | Ast.IntConst c -> (* [[intconst]] = int *)
     (T.Expression exp, T.Int) :: constraints
@@ -56,13 +58,13 @@ let rec generate_type_constraints_from_exp (exp: EAst.exp) (constraints: T.type_
 
 and
 
-generate_type_constraints_from_exps (exps: EAst.exp list) (constraints: T.type_constraint list): T.type_constraint list =
-  List.fold_left (fun (constraints: T.type_constraint list) (exp: EAst.exp) ->
+generate_type_constraints_from_exps exps (constraints: T.type_constraint list): T.type_constraint list =
+  List.fold_left (fun (constraints: T.type_constraint list) exp ->
     generate_type_constraints_from_exp exp constraints
   ) constraints exps
 
 
-let rec generate_type_constraints_from_stm (stm: EAst.stm) (constraints: T.type_constraint list): T.type_constraint list =
+let rec generate_type_constraints_from_stm stm (constraints: T.type_constraint list): T.type_constraint list =
   match stm.Ast.stm with
   | Ast.Output exp -> (* [[E]] = int *)
     let constraints = generate_type_constraints_from_exp exp constraints in
@@ -106,10 +108,10 @@ let rec generate_type_constraints_from_stm (stm: EAst.stm) (constraints: T.type_
 
 and
 
-generate_type_constraints_from_stms (stms: EAst.stm list) (constraints: T.type_constraint list): T.type_constraint list =
+generate_type_constraints_from_stms stms (constraints: T.type_constraint list): T.type_constraint list =
   (* Fold right such that the constraints from the first statements comes before the
      constraints of the second statement, etc. *)
-  List.fold_right (fun (stm: EAst.stm) (constraints: T.type_constraint list) ->
+  List.fold_right (fun stm (constraints: T.type_constraint list) ->
     generate_type_constraints_from_stm stm constraints
   ) stms constraints
 

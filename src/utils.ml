@@ -1,4 +1,10 @@
-let fold xs a f = List.fold_left (fun a x -> f x a) a xs
+(**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com.
+  *)
 
-let id = ref 0
-let new_id = (fun old_id -> id := !id + 1; !id)
+let make_id =
+  let count = ref 0 in
+  (fun () ->
+    let id = !count in
+    count := id + 1;
+    id)

@@ -1,3 +1,7 @@
+(**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com
+  *)
+
 module CFG = ControlFlowGraph
 module CFGNodeSet = Set.Make(ControlFlowGraph.CFGNode)
 module CFGNodeMap = Map.Make(ControlFlowGraph.CFGNode)
@@ -34,11 +38,6 @@ let run_worklist constraint_lambda dep_lambda bottom cfg =
 
   let rec visit =
     (fun worklist solution ->
-      (*
-      let () = Printf.printf "Input to:\n" in
-      let () = pp_value solution in
-      print_newline();
-      *)
       if not (CFGNodeSet.is_empty worklist)
       then
         let node_i = CFGNodeSet.choose worklist in
@@ -50,11 +49,6 @@ let run_worklist constraint_lambda dep_lambda bottom cfg =
         then
           let worklist' = CFGNodeSet.union worklist' (CFGNodeMap.find node_i dep_map) in
           let solution' = CFGNodeMap.add node_i y solution in
-          (*
-          let () = Printf.printf "Changed to:\n" in
-          let () = pp_value solution' in
-          print_newline();
-          *)
           visit worklist' solution'
         else
           visit worklist' solution

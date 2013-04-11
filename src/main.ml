@@ -1,6 +1,7 @@
-(** Commandline interface for the compiler. *)
+(**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com.
+  *)
 
-(** Parse a TIP file *)
 let parse_file file_name =
   try
     let inch = open_in file_name in
@@ -31,14 +32,9 @@ let parse_file file_name =
   | End_of_file ->
       Error.error Lexing.dummy_pos "Parse error: end of file from lexer"
   | Sys_error msg ->
-      Error.error Lexing.dummy_pos  ("Unable to open file " ^ msg)
+      Error.error Lexing.dummy_pos ("Unable to open file " ^ msg)
 
-(* Pretty printing functions *)
-(* let pp_ast = Astpp.pp_program *)
-
-(** Compile a set of files *)
-let compile filename =
-  (* helper to apply a phase *)
+let analyze filename =
   let apply phase ast msg =
     print_string "*** ";
     print_endline msg;
@@ -55,7 +51,6 @@ let compile filename =
   
   let east = apply Environment.env_program prog "building environment" in
   let ()   = apply EnvironmentAstpp.pp_program east "pretty printing environment ast" in
-  let ()   = apply Environmentpp.pp_env east "pretty printing environment" in
   
   let tc   = apply TypeConstraintGenerator.generate_type_constraints east "generating type constraints" in
   let ()   = apply TypeConstraintpp.pp_type_constraints tc "pretty printing type constraints" in
@@ -71,7 +66,7 @@ let compile filename =
   let ()   = apply ControlFlowGraph.pp cfg "pretty printing cfg" in
   let icfg = apply ControlFlowGraph.generate_cfg_from_program prog "generating interprocedural cfg" in
   let ()   = apply ControlFlowGraph.pp icfg "pretty printing interprocedural cfg" in
-  (*
+  
   (try apply (SignAnalysis.analyze_program east) cfg "analyzing signs" with | Exit -> ());
   (try apply (LivenessAnalysis.analyze_program prog) cfg "analyzing liveness" with | Exit -> ());
   (try apply (InitializedVariablesAnalysis.analyze_program prog) cfg "analyzing initialized variables" with | Exit -> ());
@@ -80,9 +75,9 @@ let compile filename =
   (try apply (AvailableExpressionsAnalysis.analyze_program prog) cfg "analyzing available expressions" with | Exit -> ());
   (try apply (VeryBusyExpressionsAnalysis.analyze_program prog) cfg "analyzing very busy expressions" with | Exit -> ());
   (try apply (InterproceduralContextInsensitiveSignAnalysis.analyze_program east) icfg "analyzing signs interprocedurally" with | Exit -> ());
-  *)
+  
   (try apply (InterproceduralContextSensitiveSignAnalysis.analyze_program east) icfg "analyzing signs interprocedurally" with | Exit -> ());
-  (*
+  
   let nast = apply NormalizeAst.normalize_program east "normalizing program" in
   let ()   = apply EnvironmentAstpp.pp_program nast "pretty printing normalized ast" in
     
@@ -90,7 +85,6 @@ let compile filename =
   let ()   = apply AndersensAnalysis.C.pp_instance ac "pretty printing andersen constraints" in
   let acs  = apply AndersensAnalysis.C.solve_instance ac "solving andersen constraints" in
   let ()   = apply AndersensAnalysis.C.pp_solution acs "pretty printing solution to andersen constraints" in
-  *)
   ()
 
 let _ =
@@ -109,12 +103,10 @@ let _ =
       " ...") ] in
   Arg.parse argspec (fun s -> filename := s) usagemsg;
   begin
-    (* We are in the batch compiler *)
-    print_endline "The TIP compiler.";
-    print_newline ();
+    Printf.printf "The TIP analyzer.\n";
     if !filename = "" then
       (print_endline "Error: No filename provided";
       Arg.usage argspec usagemsg)
     else
-      compile !filename
+      analyze !filename
   end

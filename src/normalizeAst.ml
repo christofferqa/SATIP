@@ -1,7 +1,9 @@
-open Printf
-open EnvironmentStructures
-module EAst = EnvironmentAst
+(**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com.
+  *)
 
+module EAst = EnvironmentAst
+module StringMap = Map.Make(SetUtils.String)
 
 (**
   * This phase normalizes the environment AST such that:
@@ -26,10 +28,10 @@ module EAst = EnvironmentAst
 let generate_unique_identifier env =
   let rec find = (fun str num ->
     let id = Printf.sprintf "%s%d" str num in
-    if Env.mem id env
+    if StringMap.mem id env
     then find str (num + 1)
     else id) in
-  { Ast.identifier_pos = Lexing.dummy_pos; Ast.identifier = find "tmp" 1; Ast.identifier_id = Utils.new_id !(Utils.id) }
+  { Ast.identifier_pos = Lexing.dummy_pos; Ast.identifier = find "tmp" 1; Ast.identifier_id = Utils.make_id () }
 
 (* A function that inserts a temporary assignment of exp into id in front of stms. *)
 let add_temp_assign_to id exp stms env =
@@ -37,11 +39,11 @@ let add_temp_assign_to id exp stms env =
     match id with
     | Some id -> id
     | None -> generate_unique_identifier env in
-  let stm_temp_decl = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.LocalDecl [temp_id]; Ast.stm_id = Utils.new_id !(Utils.id) } in
-  let stm_temp_assign = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.VarAssignment (temp_id, exp); Ast.stm_id = Utils.new_id !(Utils.id) } in
+  let stm_temp_decl = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.LocalDecl [temp_id]; Ast.stm_id = Utils.make_id () } in
+  let stm_temp_assign = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.VarAssignment (temp_id, exp); Ast.stm_id = Utils.make_id () } in
   (temp_id,
    stm_temp_decl :: stm_temp_assign :: stms,
-   Env.add temp_id.Ast.identifier (LocalDecl stm_temp_decl) env)
+   StringMap.add temp_id.Ast.identifier (EAst.LocalDecl stm_temp_decl) env)
 
 
 (**
@@ -186,18 +188,18 @@ let rec normalize_stm stm env stms =
       (* normalize both sides *)
       (* normalize pointer assignment (left) *)
       let temp_id1 = generate_unique_identifier env in
-      let stm_temp_decl1 = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.LocalDecl [temp_id1]; Ast.stm_id = Utils.new_id !(Utils.id) } in
-      let stm_temp_assign1 = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.VarAssignment (temp_id1, exp1); Ast.stm_id = Utils.new_id !(Utils.id) } in
-      let env = Env.add temp_id1.Ast.identifier (LocalDecl stm_temp_decl1) env in
+      let stm_temp_decl1 = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.LocalDecl [temp_id1]; Ast.stm_id = Utils.make_id () } in
+      let stm_temp_assign1 = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.VarAssignment (temp_id1, exp1); Ast.stm_id = Utils.make_id () } in
+      let env = StringMap.add temp_id1.Ast.identifier (EAst.LocalDecl stm_temp_decl1) env in
       
       (* normalize subexpressions *)
       let (normalized_exp2, new_stms, env) = normalize_exp exp2 [] env 0 in
       
       (* normalize pointer assignment (right) *)
       let temp_id2 = generate_unique_identifier env in
-      let stm_temp_decl2 = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.LocalDecl [temp_id2]; Ast.stm_id = Utils.new_id !(Utils.id) } in
-      let stm_temp_assign2 = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.VarAssignment (temp_id2, normalized_exp2); Ast.stm_id = Utils.new_id !(Utils.id) } in
-      let env = Env.add temp_id2.Ast.identifier (LocalDecl stm_temp_decl2) env in
+      let stm_temp_decl2 = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.LocalDecl [temp_id2]; Ast.stm_id = Utils.make_id () } in
+      let stm_temp_assign2 = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.VarAssignment (temp_id2, normalized_exp2); Ast.stm_id = Utils.make_id () } in
+      let env = StringMap.add temp_id2.Ast.identifier (EAst.LocalDecl stm_temp_decl2) env in
       
       let stm_ptr_assign = { stm with Ast.stm = Ast.PointerAssignment (Ast.i2exp temp_id1, Ast.i2exp temp_id2) } in
       
@@ -206,7 +208,7 @@ let rec normalize_stm stm env stms =
   | Ast.VarAssignment (id, exp) ->
     (* normalize subexpressions *)
     let (normalized_exp, new_stms, env) = normalize_exp exp [] env 0 in
-    let stm = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.VarAssignment (id, normalized_exp); Ast.stm_id = Utils.new_id !(Utils.id) } in
+    let stm = { Ast.stm_pos = Lexing.dummy_pos; Ast.stm = Ast.VarAssignment (id, normalized_exp); Ast.stm_id = Utils.make_id () } in
     (new_stms @ stm :: stms, env)
 
 and

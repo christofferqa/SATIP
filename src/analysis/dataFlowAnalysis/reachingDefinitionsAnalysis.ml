@@ -1,3 +1,7 @@
+(**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com
+  *)
+
 module CFG = ControlFlowGraph
 module DFA = DataFlowAnalysis.Make(SetUtils.Stm)
 module StmSetUtils = SetUtils.Make(SetUtils.Stm)

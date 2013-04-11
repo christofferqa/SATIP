@@ -1,3 +1,7 @@
+(**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com
+  *)
+
 open ConstantPropagationLattice
 module EAst = EnvironmentAst
 module CFG = ControlFlowGraph
@@ -56,7 +60,7 @@ let analyze_function func cfg =
     StringMap.fold
       (fun id decl acc ->
         match decl with
-        | EnvironmentStructures.FunctionDecl _ -> acc
+        | EAst.FunctionDecl _ -> acc
         | _ -> StringMap.add id Bottom acc)
       func.EAst.function_decl.EAst.function_env StringMap.empty in
   let fix = FixedPoint.run_worklist (make_lambda bottom) (DFA.dep DFA.Forwards) bottom cfg in

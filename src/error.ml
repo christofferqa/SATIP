@@ -1,13 +1,8 @@
 (**
-  * Functions and type declarations having to do with error handling.
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com.
+  *
+  * Functions having to do with error handling.
   *)
-
-(** Function for signaling a "hole" that needes to completed towards a full tip compiler *)
-let tip_not_implemented_yet file msg =
-  Printf.printf "Implementation needed in %s:\n\t%s\n" file msg;
-  exit 0 (* exit as a success to allow partial "negative" testing *)
-
-(**/**) (*/*)
 
 let print_position pos =
     let line = pos.Lexing.pos_lnum in
@@ -41,7 +36,6 @@ let rec print_line pos =
       print_newline ();
       print_endline "Warning: attempt to print invalid Lexing.position: column index out of bounds"
 
-(**/**) (*/*)
 
 (** Exit with error [errortype] at position [pos] and message [message] *)
 let error pos message =
@@ -66,6 +60,5 @@ let error pos message =
     end
 
 let phase phase message =
-  Printf.printf "Error in phase %s: %s" phase message;
-  print_newline();
+  Printf.printf "Error in phase %s: %s\n" phase message;
   raise Exit

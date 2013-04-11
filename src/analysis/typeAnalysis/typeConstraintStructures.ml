@@ -1,15 +1,9 @@
 (**
-  * ...
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com.
   *)
 
-module EAst = EnvironmentAst
-
-
-let expressions_equal (exp1: Ast.exp) (exp2: Ast.exp): bool =
-  exp1.Ast.exp = exp2.Ast.exp
-
 type type_exp_variable =
-  | Alpha of int (* uid to recognize other occurences of the same alpha *)
+  | Alpha of int (* uid to recognize other occurences of the same fresh type variable *)
   | Int
   | Expression of Ast.exp
   | Pointer of type_exp_variable
@@ -23,11 +17,11 @@ type type_constraint = type_exp_variable * type_exp_variable
   *)
 
 let type_exp_variable_list_from_identifiers (ids: Ast.identifier list): type_exp_variable list =
-  List.fold_right (fun (id: Ast.identifier) (acc: type_exp_variable list) ->
-    (Expression (Ast.i2exp id)) :: acc
-  ) ids []
+  List.fold_right
+    (fun id acc -> Expression (Ast.i2exp id) :: acc)
+    ids []
 
-let type_exp_variable_list_from_exps (exps: EAst.exp list): type_exp_variable list =
-  List.fold_right (fun (exp: EAst.exp) (acc: type_exp_variable list) ->
-    (Expression exp) :: acc
-  ) exps []
+let type_exp_variable_list_from_exps exps: type_exp_variable list =
+  List.fold_right
+    (fun exp acc -> Expression exp :: acc)
+    exps []

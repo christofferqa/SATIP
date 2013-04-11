@@ -1,3 +1,7 @@
+(**
+  * @author Troels Leth Jensen, tleth@cs.au.dk.
+  *)
+
 module type T =
   sig
     type t

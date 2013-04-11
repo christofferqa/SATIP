@@ -1,3 +1,7 @@
+(**
+  * @author Troels Leth Jensen, tleth@cs.au.dk.
+  *)
+
 module type T = 
   sig
     type t
@@ -69,13 +73,6 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
 (**
   * Helper functions - not in the interface
   *)
-  let make_id =
-    let count = ref 0 in
-    fun () -> let id  = !count in
-              begin 
-                count := !count + 1;
-                id
-              end
 
   (* map lookup with [] on failure *)
   let lookup k m = try NodeMap.find k m with Not_found -> []
@@ -105,7 +102,7 @@ module Make (Type : T) : (Graph with type c = Type.t) = struct
 
   (* Node creation / interfacing *)
   let make_node content = 
-    let id = make_id () in (id, content)
+    let id = Utils.make_id () in (id, content)
 
   let get_node_content (_, content) = content 
   let get_node_id (id, _) = id

@@ -1,4 +1,8 @@
 id(result) {
+	return id2(result) * 5;
+}
+
+id2(result) {
 	return result;
 }
 

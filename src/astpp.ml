@@ -1,30 +1,31 @@
 (**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com.
+  *
   * Pretty printer for the AST.
   *)
 
-open Printf
 open Ast
 
 
 (**
-  * To string functions.
+  * To string functions:
   *)
 
-let identifier_to_string (id: Ast.identifier) =
-  id.Ast.identifier
+let identifier_to_string id =
+  id.identifier
 
-let rec identifiers_to_string (ids: Ast.identifier list): string =
+let rec identifiers_to_string ids =
   match ids with
   | [] -> ""
   | id :: [] -> identifier_to_string id
-  | id :: ids' -> identifier_to_string id ^ ", " ^ (identifiers_to_string ids')
+  | id :: ids' -> (identifier_to_string id) ^ ", " ^ (identifiers_to_string ids')
 
-let unop_to_string (unop: Ast.unop): string =
+let unop_to_string unop =
   match unop with
   | Pointer -> "&"
   | Dereference -> "*"
 
-let binop_to_string (binop: Ast.binop): string =
+let binop_to_string binop =
   match binop with
   | Plus -> "+"
   | Minus -> "-"
@@ -33,9 +34,9 @@ let binop_to_string (binop: Ast.binop): string =
   | Gt -> ">"
   | Eq -> "=="
 
-let rec exp_to_string (exp: Ast.exp): string =
+let rec exp_to_string exp =
   match exp.exp with
-  | IntConst c -> sprintf "%d" c
+  | IntConst c -> Printf.sprintf "%d" c
   | Identifier id -> Ast.i2s id
   | Binop (exp1, binop, exp2) -> (exp_to_string exp1) ^ (binop_to_string binop) ^ (exp_to_string exp2)
   | Unop (unop, exp') -> (unop_to_string unop) ^ (exp_to_string exp')
@@ -47,13 +48,13 @@ let rec exp_to_string (exp: Ast.exp): string =
 
 and
 
-exps_to_string (exps: Ast.exp list): string =
+exps_to_string exps =
   match exps with
   | [] -> ""
   | exp :: [] -> exp_to_string exp
   | exp :: exps' -> (exp_to_string exp) ^ ", " ^ (exps_to_string exps')
 
-let rec stm_to_string (stm: Ast.stm) =
+let rec simple_stm_to_string stm =
   match stm.stm with
   | VarAssignment (id, exp) -> (identifier_to_string id) ^ " = " ^ (exp_to_string exp) ^ ";"
   | PointerAssignment (exp1, exp2) -> (exp_to_string exp1) ^ " = " ^ (exp_to_string exp2) ^ ";"
@@ -64,33 +65,65 @@ let rec stm_to_string (stm: Ast.stm) =
   | LocalDecl ids -> "var " ^ (identifiers_to_string ids) ^ ";"
   | Return exp -> "return " ^ (exp_to_string exp) ^ ";"
 
+let rec stm_to_string stm prefix =
+  match stm.stm with
+  | VarAssignment (id, exp) ->
+    Printf.sprintf "%s%s = %s;" prefix (identifier_to_string id) (exp_to_string exp)
+  | PointerAssignment (exp1, exp2) ->
+    Printf.sprintf "%s%s = %s;" prefix (exp_to_string exp1) (exp_to_string exp2)
+  | Output exp ->
+    Printf.sprintf "%soutput %s;" prefix (exp_to_string exp)
+  | LocalDecl ids ->
+    Printf.sprintf "%svar %s;" prefix (identifiers_to_string ids)
+  | Return exp ->
+    Printf.sprintf "%sreturn %s;" prefix (exp_to_string exp)
+  | IfThen (exp, stms) ->
+    Printf.sprintf
+      "%sif (%s) {\n%s\n%s}"
+      prefix (exp_to_string exp) (stms_to_string stms (prefix ^ "  ")) prefix
+  | While (exp, stms) ->
+    Printf.sprintf
+      "%swhile (%s) {\n%s\n%s}"
+      prefix (exp_to_string exp) (stms_to_string stms (prefix ^ "  ")) prefix
+  | IfThenElse (exp, stms1, stms2) ->
+    Printf.sprintf
+      "%sif (%s) {\n%s\n%s} else {\n%s\n%s}"
+      prefix (exp_to_string exp) (stms_to_string stms1 (prefix ^ "  ")) prefix (stms_to_string stms2 (prefix ^ "  ")) prefix
+
+and
+
+stms_to_string stms prefix =
+  match stms with
+  | [] -> ""
+  | stm :: [] -> stm_to_string stm prefix
+  | stm :: stms' -> Printf.sprintf "%s\n%s" (stm_to_string stm prefix) (stms_to_string stms' prefix)
 
 (**
-  * Misc.
+  * Pretty printer functions:
   *)
 
-let pp_identifier (id: Ast.identifier) =
-  printf "%s" id.Ast.identifier
+let pp_identifier id =
+  Printf.printf "%s" id.Ast.identifier
 
-let pp_identifiers (ids: Ast.identifier list) =
-  printf "%s" (identifiers_to_string ids)
+let pp_identifiers ids =
+  Printf.printf "%s" (identifiers_to_string ids)
 
-let pp_binop (binop: Ast.binop) =
-  printf "%s" (binop_to_string binop)
+let pp_binop binop =
+  Printf.printf "%s" (binop_to_string binop)
 
-let pp_unop (unop: Ast.unop) =
-  printf "%s" (unop_to_string unop)
+let pp_unop unop =
+  Printf.printf "%s" (unop_to_string unop)
 
 
 (**
-  * Expressions
+  * Expressions:
   *)
 
-let pp_exp (exp: Ast.exp) =
-  printf "%s" (exp_to_string exp)
+let pp_exp exp =
+  Printf.printf "%s" (exp_to_string exp)
 
-let pp_exps (exps: Ast.exp list) =
-  printf "%s" (exps_to_string exps)
+let pp_exps exps =
+  Printf.printf "%s" (exps_to_string exps)
 
 
 (**
@@ -98,91 +131,33 @@ let pp_exps (exps: Ast.exp list) =
   *)
 
 
-let rec pp_stm (stm: Ast.stm) (prefix: string) =
-  match stm.stm with
-  | VarAssignment (id, exp) ->
-    printf "%s" prefix;
-    pp_identifier id;
-    printf " = ";
-    pp_exp exp;
-    printf ";"
-  | PointerAssignment (exp1, exp2) ->
-    printf "%s" prefix;
-    pp_exp exp1;
-    printf " = ";
-    pp_exp exp2;
-    printf ";"
-  | Output exp ->
-    printf "%soutput " prefix;
-    pp_exp exp
-  | IfThen (exp, stms) ->
-    printf "%sif (" prefix;
-    pp_exp exp;
-    printf ") {";
-    print_newline();
-    pp_stms stms (prefix ^ "  ");
-    print_newline();
-    printf "%s}" prefix
-  | IfThenElse (exp, stms1, stms2) ->
-    printf "%sif (" prefix;
-    pp_exp exp;
-    printf ") {";
-    print_newline();
-    pp_stms stms1 (prefix ^ "  ");
-    print_newline();
-    printf "%s} else {" prefix;
-    print_newline();
-    pp_stms stms2 (prefix ^ "  ");
-    print_newline();
-    printf "%s}" prefix
-  | While (exp, stms) ->
-    printf "%swhile (" prefix;
-    pp_exp exp;
-    printf ") {";
-    print_newline();
-    pp_stms stms (prefix ^ "  ");
-    print_newline();
-    printf "%s}" prefix
-  | LocalDecl ids ->
-    printf "%svar " prefix;
-    pp_identifiers ids;
-    printf ";"
-  | Return exp ->
-    printf "%sreturn " prefix;
-    pp_exp exp;
-    printf ";"
+let rec pp_stm stm prefix =
+  Printf.printf "%s" (stm_to_string stm prefix)
 
 and
 
-pp_stms (stms: Ast.stm list) (prefix: string) =
-  match stms with
-  | [] -> ()
-  | stm :: [] ->
-    pp_stm stm prefix
-  | stm :: stms' ->
-    pp_stm stm prefix;
-    print_newline();
-    pp_stms stms' prefix
+pp_stms stms prefix =
+  Printf.printf "%s" (stms_to_string stms prefix)
 
 
 (**
   * Functions
   *)
 
-let rec pp_function (func: Ast.function_decl_desc) =
+let rec pp_function func =
   pp_identifier func.function_name;
-  printf "(";
+  Printf.printf "(";
   pp_identifiers func.function_formals;
-  printf ") {";
+  Printf.printf ") {";
   print_newline();
   pp_stms func.function_body "  ";
   print_newline();
-  printf "}";
+  Printf.printf "}";
   print_newline()
 
 and
 
-pp_functions (funcs: Ast.function_decl list) =
+pp_functions funcs =
   match funcs with
   | [] -> ()
   | func :: [] ->
@@ -194,8 +169,8 @@ pp_functions (funcs: Ast.function_decl list) =
 
 
 (**
-  * Programs
+  * Programs:
   *)
 
-let rec pp_program (prog: Ast.program) =
+let pp_program prog =
   pp_functions prog.program_decl

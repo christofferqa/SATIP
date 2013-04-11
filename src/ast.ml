@@ -1,11 +1,14 @@
 (**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com.
+  *
   * AST type produced by the parser.
   *)
 
-type identifier = { identifier_pos : Lexing.position; identifier : string; identifier_id: int }
+type identifier = { identifier_pos: Lexing.position; identifier: string; identifier_id: int }
+
 
 (**
-  * Operators
+  * Operators:
   *)
 
 type binop =
@@ -22,24 +25,24 @@ type unop =
 
 
 (**
-  * Expressions
+  * Expressions:
   *)
 
 type exp = { exp_pos: Lexing.position; exp: exp_desc; exp_id: int }
 and exp_desc =
+  | Input
+  | Malloc
+  | Null
   | IntConst of int
   | Identifier of identifier
   | Binop of exp * binop * exp
   | Unop of unop * exp
-  | Input
-  | Malloc
-  | Null
   | FunctionInvocation of identifier * exp list
   | PointerInvocation of exp * exp list
 
 
 (**
-  * Statements
+  * Statements:
   *)
 
 type stm = { stm_pos: Lexing.position; stm: stm_desc; stm_id: int }
@@ -55,7 +58,7 @@ and stm_desc =
 
 
 (**
-  * Functions
+  * Functions:
   *)
 
 type function_decl = { function_decl_pos: Lexing.position; function_decl: function_decl_desc }
@@ -66,7 +69,7 @@ and function_decl_desc
 
 
 (**
-  * Programs
+  * Programs:
   *)
 
 type program

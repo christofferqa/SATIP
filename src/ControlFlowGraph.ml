@@ -1,3 +1,8 @@
+(**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com.
+  * @author Troels Leth Jensen, tleth@cs.au.dk.
+  *)
+
 module EAst = EnvironmentAst
 module StringMap = Map.Make(SetUtils.String)
 
@@ -14,7 +19,7 @@ let node_content_to_string node_content =
   match node_content with
   | Entry func -> Printf.sprintf "Entry(%s)" func.Ast.function_decl.Ast.function_name.Ast.identifier
   | Exit func -> Printf.sprintf "Exit(%s)" func.Ast.function_decl.Ast.function_name.Ast.identifier
-  | SimpleStm stm -> Printf.sprintf "%s" (Astpp.stm_to_string stm)
+  | SimpleStm stm -> Printf.sprintf "%s" (Astpp.simple_stm_to_string stm)
   | ExpJump exp -> Printf.sprintf "%s" (Astpp.exp_to_string exp)
   | CallNode (_, exp, _) -> Printf.sprintf "_ = %s" (Astpp.exp_to_string exp)
   | AfterCallNode (id, _, _) -> Printf.sprintf "%s = _" (Astpp.identifier_to_string id)

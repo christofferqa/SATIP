@@ -1,3 +1,9 @@
+(**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com.
+  *
+  * AST type produced by the parser.
+  *)
+
 module Const =
   struct
     type t = ConstantPropagationLattice.const
@@ -39,7 +45,7 @@ module Stm =
   struct
     type t = Ast.stm
     let compare e1 e2 = compare e1.Ast.stm_id e2.Ast.stm_id
-    let to_string = Astpp.stm_to_string
+    let to_string = Astpp.simple_stm_to_string
   end
 
 module type OrderedType =

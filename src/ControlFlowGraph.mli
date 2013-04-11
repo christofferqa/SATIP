@@ -1,3 +1,8 @@
+(**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com.
+  * @author Troels Leth Jensen, tleth@cs.au.dk.
+  *)
+
 type content =
 | Entry of Ast.function_decl
 | Exit of Ast.function_decl

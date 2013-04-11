@@ -1,46 +1,28 @@
-open EnvironmentStructures
-
 (**
-  * AST type produced by the parser.
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com.
+  *
+  * Environment AST type. A property function_env is added to each function_decl_desc
+  * in the AST.
   *)
 
-type identifier = Ast.identifier
-
-
-(**
-  * Operators.
-  *)
-
-type binop = Ast.binop
-type unop = Ast.unop
+module StringMap = Map.Make(SetUtils.String)
 
 
 (**
-  * Expressions.
+  * Functions:
   *)
 
-type exp = Ast.exp
-and exp_desc = Ast.exp_desc
-
-
-(**
-  * Statements.
-  *)
-
-type stm = Ast.stm
-and stm_desc = Ast.stm_desc
-
-
-(**
-  * Functions.
-  *)
+type decl =
+  | FunctionDecl of Ast.function_decl
+  | FormalDecl of Ast.function_decl
+  | LocalDecl of Ast.stm
 
 type function_decl = { function_decl_pos: Lexing.position; function_decl: function_decl_desc }
 and function_decl_desc
-  = { function_name    : identifier;
-      function_formals : identifier list;
-      function_body    : stm list;
-      function_env     : env (* New *) }
+  = { function_name    : Ast.identifier;
+      function_formals : Ast.identifier list;
+      function_body    : Ast.stm list;
+      function_env     : decl StringMap.t (* New *) }
 
 
 (**

@@ -1,4 +1,6 @@
 (**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com
+  *
   * This phase solves a bunch of type constraints using the unification algorithm.
   *)
 

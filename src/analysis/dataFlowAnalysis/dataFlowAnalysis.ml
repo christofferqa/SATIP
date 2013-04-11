@@ -1,3 +1,7 @@
+(**
+  * @author Christoffer Quist Adamsen, cqa@cs.au.dk, christofferqa@gmail.com.
+  *)
+
 module CFG = ControlFlowGraph
 module CFGNodeSet = Set.Make(ControlFlowGraph.CFGNode)
 module CFGNodeMap = Map.Make(ControlFlowGraph.CFGNode)
