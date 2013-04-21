@@ -10,7 +10,9 @@ Contributors:
 
 RUN
 ===
-Use `make compile` to compile the files, and e.g. `make run FILE=tests/sign_interprocedural_normalized.tip` to run the analyses on sign_interprocedural_normalized.tip.
+Use `make compile` to compile the files, and e.g.
+`make run FILE=tests/sign_interprocedural_normalized.tip`
+to run the analyses on tests/sign_interprocedural_normalized.tip.
 
 
 TIP
