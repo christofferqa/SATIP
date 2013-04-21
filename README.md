@@ -3,8 +3,8 @@ Static Analysis for TIP
 An implementation of a bunch of different static analyses presented by [Anders Møller](http://cs.au.dk/~amoeller/) during the [Static Analysis](http://cs.au.dk/SA) course at University of Aarhus for TIP (Tiny Imperative Language).
 
 Contributors:
-* Christoffer Quist Adamsen, <christofferqa@gmail.com>
 
+* Christoffer Quist Adamsen, <christofferqa@gmail.com>
 * Troels Leth Jensen, <troelslethjensen@gmail.com>
 
 
@@ -16,13 +16,16 @@ Use `make compile` to compile the files, and e.g. `make run FILE=tests/sign_inte
 TIP
 ===
 Programs:
+
     P ::= F
         | F P
 
 Functions:
+
     F ::= id(id, ..., id) { S return E; }
 
 Statements:
+
     S ::= var id, ..., id;
         | id = E;
         | *id = E;
@@ -33,6 +36,7 @@ Statements:
         | while (E) { S }
 
 Expressions:
+
     E ::= intconst
         | id
         | E+E | E-E | E*E | E/E | E>E | E==E
@@ -49,23 +53,14 @@ Expressions:
 ANALYSES
 ========
 * Type Analysis
-
 * Control Flow Analysis/Closure Analysis
-
 * Intraprocedural Liveness Analysis
-
 * Intraprocedural Available Expressions Analysis
-
 * Intraprocedural Constant Propagation Analysis
-
 * Intraprocedural Initialized Variables Analysis
-
 * Intraprocedural Reaching Definitions Analysis
-
 * Intraprocedural Very Busy Expressions Analysis
-
 * Intraprocedural, Context Insensitive Interprocedural, and Context Sensitive Interprocedural Sign Analysis
-
 * Interprocedural Pointer Analysis using Andersen's Analysis
 
 
