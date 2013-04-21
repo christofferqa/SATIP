@@ -1,10 +1,10 @@
 Static Analysis for TIP
 =======================
-An implementation of a bunch of different static analyses presented by [Anders Møller](http://cs.au.dk/~amoeller/) during the [Static Analysis](http://cs.au.dk/SA) course at University of Aarhus for TIP (Tiny Imperative Language).
+An implementation of a bunch of different static analyses presented by [Anders MÃ¸ller](http://cs.au.dk/~amoeller/) during the [Static Analysis](http://cs.au.dk/SA) course at University of Aarhus for TIP (Tiny Imperative Language).
 
 Contributors:
-* Christoffer Quist Adamsen, christofferqa@gmail.com
-* Troels Leth Jensen, troelslethjensen@gmail.com
+* Christoffer Quist Adamsen, <christofferqa@gmail.com>
+* Troels Leth Jensen, <troelslethjensen@gmail.com>
 
 
 RUN
@@ -15,42 +15,34 @@ Use `make compile` to compile the files, and e.g. `make run FILE=tests/sign_inte
 TIP
 ===
 Programs:
-<pre>
-P ::= F
-    | F P
-</pre>
+    P ::= F
+        | F P
 
 Functions:
-<pre>
-F ::= id(id, ..., id) { S return E; }
-</pre>
+    F ::= id(id, ..., id) { S return E; }
 
 Statements:
-<pre>
-S ::= var id, ..., id;
-    | id = E;
-    | *id = E;
-    | output E;
-    | S S
-    | if (E) { S }
-    | if (E) { S } else { S }
-    | while (E) { S }
-</pre>
+    S ::= var id, ..., id;
+        | id = E;
+        | *id = E;
+        | output E;
+        | S S
+        | if (E) { S }
+        | if (E) { S } else { S }
+        | while (E) { S }
 
 Expressions:
-<pre>
-E ::= intconst
-    | id
-    | E+E | E-E | E*E | E/E | E>E | E==E
-    | (E)
-    | input
-    | id(E, ..., E)
-    | (E)(E, ..., E)
-    | &id
-    | malloc
-    | *E
-    | null
-</pre>
+    E ::= intconst
+        | id
+        | E+E | E-E | E*E | E/E | E>E | E==E
+        | (E)
+        | input
+        | id(E, ..., E)
+        | (E)(E, ..., E)
+        | &id
+        | malloc
+        | *E
+        | null
 
 
 ANALYSES
