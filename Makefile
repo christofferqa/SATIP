@@ -10,18 +10,19 @@ OCAMLMENHIR := menhir
 # Base invokation of ocamlbuild
 OCAMLBUILD := ocamlbuild -no-links -use-menhir -menhir "${OCAMLMENHIR} -v" -Is $(INCL_DIRS) -Xs $(EXCL_DIRS)
 
-tip.byte:
-	@echo "*** Building tip.byte"
+all: clean compile run
+
+clean:
+	$(OCAMLBUILD) -clean
+	rm -f tip tip.byte
+
+compile:
 	@$(OCAMLBUILD) $(SRC_DIR)/main.byte
 	@rm -f parser.conflicts
 	@if (test -f $(BLD_DIR)/$(SRC_DIR)/parser.conflicts ); \
           then ln -sf $(BLD_DIR)/$(SRC_DIR)/parser.conflicts parser.conflicts; fi
 	@ln -sf $(BLD_DIR)/$(SRC_DIR)/main.byte tip.byte
 	@ln -sf tip.byte tip
-	@echo "*** Done"
 
-clean:
-	@echo "*** Cleaning"
-	$(OCAMLBUILD) -clean
-	rm -f tip tip.byte
-	@echo "*** Done"
+run:
+	ocamlrun tip ${FILE}

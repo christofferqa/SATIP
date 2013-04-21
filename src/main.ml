@@ -77,7 +77,7 @@ let analyze filename =
   (try apply (InterproceduralContextInsensitiveSignAnalysis.analyze_program east) icfg "analyzing signs interprocedurally" with | Exit -> ());
   
   (try apply (InterproceduralContextSensitiveSignAnalysis.analyze_program east) icfg "analyzing signs interprocedurally" with | Exit -> ());
-  
+  (*
   let nast = apply NormalizeAst.normalize_program east "normalizing program" in
   let ()   = apply EnvironmentAstpp.pp_program nast "pretty printing normalized ast" in
     
@@ -85,6 +85,7 @@ let analyze filename =
   let ()   = apply AndersensAnalysis.C.pp_instance ac "pretty printing andersen constraints" in
   let acs  = apply AndersensAnalysis.C.solve_instance ac "solving andersen constraints" in
   let ()   = apply AndersensAnalysis.C.pp_solution acs "pretty printing solution to andersen constraints" in
+  *)
   ()
 
 let _ =
