@@ -4,6 +4,7 @@ An implementation of a bunch of different static analyses presented by [Anders M
 
 Contributors:
 * Christoffer Quist Adamsen, <christofferqa@gmail.com>
+
 * Troels Leth Jensen, <troelslethjensen@gmail.com>
 
 
@@ -48,18 +49,28 @@ Expressions:
 ANALYSES
 ========
 * Type Analysis
+
 * Control Flow Analysis/Closure Analysis
+
 * Intraprocedural Liveness Analysis
+
 * Intraprocedural Available Expressions Analysis
+
 * Intraprocedural Constant Propagation Analysis
+
 * Intraprocedural Initialized Variables Analysis
+
 * Intraprocedural Reaching Definitions Analysis
+
 * Intraprocedural Very Busy Expressions Analysis
+
 * Intraprocedural, Context Insensitive Interprocedural, and Context Sensitive Interprocedural Sign Analysis
+
 * Interprocedural Pointer Analysis using Andersen's Analysis
 
 
 TODO
 ====
 * Currently working on making a separate normalized AST. As a consequence Andersen's Analysis is currently commented out.
+
 * The interprocedural analyses assumes that variable names are unique across functions.
